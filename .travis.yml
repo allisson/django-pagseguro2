@@ -11,4 +11,7 @@ install:
   - pip install -q Django==$DJANGO_VERSION --use-mirrors
   - pip install -e . --use-mirrors
   - pip install -r .travis-requirements.txt --use-mirrors
-script: testapp/manage.py test pagseguro
+script:
+  coverage run --source=pagseguro testapp/manage.py test pagseguro
+after_success:
+  coveralls
