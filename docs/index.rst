@@ -13,7 +13,7 @@ Integração da API v2 do PagSeguro com o Django.
 .. image:: https://coveralls.io/repos/allisson/django-pagseguro2/badge.png?branch=master
     :target: https://coveralls.io/r/allisson/django-pagseguro2?branch=master
 
-Para API v1 do PagSeguro, recomendo o uso do `django-pagseguro <http://github.com/fabiocerqueira/django-pagseguro>`_.
+Para API v1 do PagSeguro, use o `django-pagseguro <http://github.com/fabiocerqueira/django-pagseguro>`_.
 
 =================
 Conteúdo
@@ -37,6 +37,7 @@ Principais características
 - Django: 1.3 (apenas python2), 1.4 (apenas python2), 1.5, 1.6.
 - Processamento de requisições http/https usando a biblioteca `requests <http://github.com/kennethreitz/requests/>`_.
 - Excelente cobertura de testes (> 80%).
+- Documentação com exemplos práticos.
 
 =================
 Links
@@ -53,11 +54,4 @@ Referências
 - `django-pagseguro (Para API v1 do PagSeguro) <http://github.com/fabiocerqueira/django-pagseguro>`_
 - `PagSeguro: Api de Pagamento <http://pagseguro.uol.com.br/v2/guia-de-integracao/api-de-pagamentos.html>`_
 - `PagSeguro: Api de Notificação <http://pagseguro.uol.com.br/v2/guia-de-integracao/api-de-notificacoes.html>`_
-
-Indices and tables
-==================
-
-* :ref:`genindex`
-* :ref:`modindex`
-* :ref:`search`
-
+- `PagSeguro: Sandbox <http://sandbox.pagseguro.uol.com.br/>`_

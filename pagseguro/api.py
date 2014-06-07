@@ -108,8 +108,8 @@ class PagSeguroApi(object):
         response = requests.get(
             self.notification_url + '/{0}'.format(notification_id),
             params={
-                'email': PAGSEGURO_EMAIL,
-                'token': PAGSEGURO_TOKEN
+                'email': self.base_params['email'],
+                'token': self.base_params['token']
             }
         )
 
