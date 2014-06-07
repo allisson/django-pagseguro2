@@ -5,8 +5,8 @@ import pagseguro
 version = pagseguro.__version__
 
 requires = [
-    'Django>=1.5',
-    'six>=1.4.1',
+    'Django>=1.3',
+    'six',
     'requests',
     'responses',
     'python-dateutil',
@@ -34,7 +34,8 @@ setup(
         'Topic :: Software Development',
         'Programming Language :: Python :: 2.6',
         'Programming Language :: Python :: 2.7',
+        'Programming Language :: Python :: 3.2',
         'Programming Language :: Python :: 3.3',
-        'Programming Language :: Python :: Implementation :: PyPy',
+        'Programming Language :: Python :: 3.4',
     ],
 )

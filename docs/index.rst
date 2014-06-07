@@ -3,15 +3,56 @@
    You can adapt this file completely to your liking, but it should at least
    contain the root `toctree` directive.
 
-Welcome to django-pagseguro2's documentation!
+Documentação do django-pagseguro2.
 =============================================
+Integração da API v2 do PagSeguro com o Django.
 
-Contents:
+.. image:: https://travis-ci.org/allisson/django-pagseguro2.svg?branch=master
+    :target: https://travis-ci.org/allisson/django-pagseguro2
+
+.. image:: https://coveralls.io/repos/allisson/django-pagseguro2/badge.png?branch=master
+    :target: https://coveralls.io/r/allisson/django-pagseguro2?branch=master
+
+Para API v1 do PagSeguro, recomendo o uso do `django-pagseguro <http://github.com/fabiocerqueira/django-pagseguro>`_.
+
+=================
+Conteúdo
+=================
 
 .. toctree::
    :maxdepth: 2
 
+   tutorial
 
+=================
+Autor
+=================
+
+- `Allisson Azevedo <https://github.com/allisson>`_
+
+==========================
+Principais características
+==========================
+- Python: 2.6, 2.7, 3.2, 3.3 e 3.4.
+- Django: 1.3 (apenas python2), 1.4 (apenas python2), 1.5, 1.6.
+- Processamento de requisições http/https usando a biblioteca `requests <http://github.com/kennethreitz/requests/>`_.
+- Excelente cobertura de testes (> 80%).
+
+=================
+Links
+=================
+
+- `Github <http://github.com/allisson/django-pagseguro2/>`_
+- `Travis CI <http://travis-ci.org/allisson/django-pagseguro2/>`_
+- `Coveralls <http://coveralls.io/r/allisson/django-pagseguro2/>`_
+
+=================
+Referências
+=================
+
+- `django-pagseguro (Para API v1 do PagSeguro) <http://github.com/fabiocerqueira/django-pagseguro>`_
+- `PagSeguro: Api de Pagamento <http://pagseguro.uol.com.br/v2/guia-de-integracao/api-de-pagamentos.html>`_
+- `PagSeguro: Api de Notificação <http://pagseguro.uol.com.br/v2/guia-de-integracao/api-de-notificacoes.html>`_
 
 Indices and tables
 ==================
