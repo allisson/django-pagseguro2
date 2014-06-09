@@ -63,6 +63,7 @@ notification_response_xml = '''<?xml version="1.0" encoding="UTF-8"?>
 <transaction>
   <date>2014-06-05T22:52:49.000-03:00</date>
   <code>04B68A13-C2CF-4821-8611-F2002636270D</code>
+  <reference>REF1234</reference>
   <type>1</type>
   <status>1</status>
   <lastEventDate>2014-06-06T01:10:12.000-03:00</lastEventDate>

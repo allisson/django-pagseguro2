@@ -22,6 +22,8 @@ Adicione o app pagseguro no INSTALLED_APPS::
         'django.contrib.auth',
         'django.contrib.contenttypes',
         'django.contrib.sessions',
+        'django.contrib.staticfiles',
+        'django.contrib.admin',
         'pagseguro',
     )
 
@@ -30,7 +32,7 @@ Adicione as configurações no settings.py::
     PAGSEGURO_EMAIL = 'fulano@cicrano.com'
     PAGSEGURO_TOKEN = 'token'
     PAGSEGURO_SANDBOX = True # se o valor for True, as requisições a api serão feitas usando o PagSeguro Sandbox.
-
+    PAGSEGURO_LOG_IN_MODEL = True # se o valor for True, os checkouts e transações vão ser logadas no database.
 
 Adicione a view que recebe as notificações no urls.py::
 
@@ -108,9 +110,31 @@ Agora que temos os itens, podemos fazer o checkout para obter o código da trans
     >>> data['redirect_url']
     'https://sandbox.pagseguro.uol.com.br/v2/checkout/payment.html?code=D0C5A7F8E5E53268849D4F89DA3363E0'
 
-====================================
-Trabalhando com a API de notificação
-====================================
+===================================
+Trabalhando com Signals de checkout
+===================================
+
+Podemos usar o recurso de Signals do Django para capturar informações relacionadas aos checkouts.
+
+Isso é bastante útil para dectectar possíveis problemas na implementação.
+
+Temos os seguintes Signals disponíveis para checkouts:
+
+- **checkout_realizado** (Disparado sempre que um novo checkout for feito).
+- **checkout_realizado_com_sucesso**
+- **checkout_realizado_com_erro**
+
+Para capturar o Signal **checkout_realizado**::
+
+    >>> from pagseguro.signals import checkout_realizado
+    >>> def load_signal(sender, data, **kwargs):
+    ...     print(data['success'])
+    ...
+    >>> checkout_realizado.connect(load_signal)
+
+======================================
+Trabalhando com Signals de notificação
+======================================
 
 Após a transação ser concluída pelo cliente, o PagSeguro vai enviar uma requisição do tipo POST para uma url que você escolheu previamente sempre que alguma mudança ocorrer no status.
 
@@ -120,9 +144,9 @@ Quando o PagSeguro envia uma nova notificação, Signals são disparados contend
 
 Para cada tipo de status, existe um Signal específico, se você quiser ser notificado apenas quando a compra for paga, você deve capturar o Signal **notificacao_status_pago**.
 
-Temos os seguintes Signals disponíveis:
+Temos os seguintes Signals disponíveis para notificações:
 
-- **notificacao_recebida** (único Signal que sempre é disparado).
+- **notificacao_recebida** (Disparado sempre que uma notificação for recebida).
 - **notificacao_status_aguardando**
 - **notificacao_status_em_analise**
 - **notificacao_status_pago**
@@ -149,3 +173,11 @@ Exemplo de um objeto **transaction**::
     u'3'
     >>> transaction['code']
     u'437D1B99-A6E8-46F0-8C00-47B818615AA2'
+
+==========================================
+Logando checkouts e transações no database
+==========================================
+
+Sempre que você configura o PAGSEGURO_LOG_IN_MODEL = True, todos os checkouts e transações são logados no database.
+
+Basta acessar o /admin/ e verificar.

@@ -4,13 +4,16 @@ from django.core.urlresolvers import reverse
 
 import responses
 
-from pagseguro.settings import NOTIFICATION_URL
+from pagseguro.settings import NOTIFICATION_URL, CHECKOUT_URL
+from pagseguro.api import PagSeguroItem, PagSeguroApi
+from pagseguro.models import Transaction, TransactionHistory
 
 
 notification_response_xml = '''<?xml version="1.0" encoding="UTF-8"?>
 <transaction>
   <date>2014-06-05T22:52:49.000-03:00</date>
   <code>04B68A13-C2CF-4821-8611-F2002636270D</code>
+  <reference>REF1234</reference>
   <type>1</type>
   <status>1</status>
   <lastEventDate>2014-06-06T01:10:12.000-03:00</lastEventDate>
@@ -64,6 +67,12 @@ notification_response_xml = '''<?xml version="1.0" encoding="UTF-8"?>
   </shipping>
 </transaction>'''
 
+checkout_response_xml = '''<?xml version="1.0" encoding="UTF-8"?>
+<checkout>
+  <code>67DB59D3BDBD84EAA4396F929DB350A7</code>
+  <date>2014-06-07T00:52:04.000-03:00</date>
+</checkout>'''
+
 
 class PagSeguroSignalsTest(TestCase):
 
@@ -74,6 +83,129 @@ class PagSeguroSignalsTest(TestCase):
             'notificationCode': 'A5182C-C9EF48EF48D2-1FF4AF6FAC82-EB2948',
             'notificationType': 'transaction'
         }
+
+    @responses.activate
+    def test_checkout_realizado(self):
+        from pagseguro.signals import checkout_realizado
+
+        # load signal function
+        def load_signal(sender, data, **kwargs):
+            self.assertEqual(
+                data['success'], True
+            )
+            self.assertEqual(
+                data['code'], '67DB59D3BDBD84EAA4396F929DB350A7'
+            )
+            self.assertEqual(
+                data['status_code'], 200
+            )
+
+        # mock requests
+        responses.add(
+            responses.POST,
+            CHECKOUT_URL,
+            body=checkout_response_xml,
+            status=200,
+        )
+
+        # connect to signal
+        checkout_realizado.connect(load_signal)
+
+        # create new checkout
+        pagseguro_api = PagSeguroApi()
+        pagseguro_api.add_item(
+            PagSeguroItem(
+                id='1',
+                description='My item',
+                amount='10.00',
+                quantity=1
+            )
+        )
+
+        # load notification
+        pagseguro_api.checkout()
+
+    @responses.activate
+    def test_checkout_realizado_com_sucesso(self):
+        from pagseguro.signals import checkout_realizado_com_sucesso
+
+        # load signal function
+        def load_signal(sender, data, **kwargs):
+            self.assertEqual(
+                data['success'], True
+            )
+            self.assertEqual(
+                data['code'], '67DB59D3BDBD84EAA4396F929DB350A7'
+            )
+            self.assertEqual(
+                data['status_code'], 200
+            )
+
+        # mock requests
+        responses.add(
+            responses.POST,
+            CHECKOUT_URL,
+            body=checkout_response_xml,
+            status=200,
+        )
+
+        # connect to signal
+        checkout_realizado_com_sucesso.connect(load_signal)
+
+        # create new checkout
+        pagseguro_api = PagSeguroApi()
+        pagseguro_api.add_item(
+            PagSeguroItem(
+                id='1',
+                description='My item',
+                amount='10.00',
+                quantity=1
+            )
+        )
+
+        # load notification
+        pagseguro_api.checkout()
+
+    @responses.activate
+    def test_checkout_realizado_com_erro(self):
+        from pagseguro.signals import checkout_realizado_com_erro
+
+        # load signal function
+        def load_signal(sender, data, **kwargs):
+            self.assertEqual(
+                data['success'], False
+            )
+            self.assertEqual(
+                data['status_code'], 401
+            )
+            self.assertEqual(
+                data['message'], 'Unauthorized'
+            )
+
+        # mock requests
+        responses.add(
+            responses.POST,
+            CHECKOUT_URL,
+            body='Unauthorized',
+            status=401,
+        )
+
+        # connect to signal
+        checkout_realizado_com_erro.connect(load_signal)
+
+        # create new checkout
+        pagseguro_api = PagSeguroApi()
+        pagseguro_api.add_item(
+            PagSeguroItem(
+                id='1',
+                description='My item',
+                amount='10.00',
+                quantity=1
+            )
+        )
+
+        # load notification
+        pagseguro_api.checkout()
 
     @responses.activate
     def test_notificacao_recebida(self):
@@ -286,3 +418,314 @@ class PagSeguroSignalsTest(TestCase):
         # load notification
         response = self.client.post(self.url, self.post_params)
         self.assertEqual(response.status_code, 200)
+
+    @responses.activate
+    def test_update_transaction(self):
+        # mock requests
+        responses.add(
+            responses.GET,
+            NOTIFICATION_URL + '/{0}'.format(self.notificationCode),
+            body=notification_response_xml,
+            status=200,
+        )
+
+        # check transaction
+        self.assertFalse(
+            Transaction.objects.filter(
+                code='04B68A13-C2CF-4821-8611-F2002636270D'
+            )
+        )
+
+        # load notification
+        response = self.client.post(self.url, self.post_params)
+        self.assertEqual(response.status_code, 200)
+
+        # check transaction
+        self.assertTrue(
+            Transaction.objects.filter(
+                code='04B68A13-C2CF-4821-8611-F2002636270D'
+            )
+        )
+        transaction = Transaction.objects.get(
+            code='04B68A13-C2CF-4821-8611-F2002636270D'
+        )
+
+        # check transaction history
+        self.assertTrue(
+            TransactionHistory.objects.filter(
+                transaction=transaction,
+                status='aguardando'
+            )
+        )
+        transaction = Transaction.objects.get(pk=transaction.pk)
+        self.assertEqual(transaction.status, 'aguardando')
+
+        # mock requests
+        responses.reset()
+        responses.add(
+            responses.GET,
+            NOTIFICATION_URL + '/{0}'.format(self.notificationCode),
+            body=notification_response_xml.replace(
+                '<status>1</status>', '<status>2</status>'
+            ),
+            status=200,
+        )
+        # load notification
+        response = self.client.post(self.url, self.post_params)
+        self.assertEqual(response.status_code, 200)
+
+        # check transaction history
+        self.assertTrue(
+            TransactionHistory.objects.filter(
+                transaction=transaction,
+                status='aguardando'
+            )
+        )
+        self.assertTrue(
+            TransactionHistory.objects.filter(
+                transaction=transaction,
+                status='em_analise'
+            )
+        )
+        transaction = Transaction.objects.get(pk=transaction.pk)
+        self.assertEqual(transaction.status, 'em_analise')
+
+        # mock requests
+        responses.reset()
+        responses.add(
+            responses.GET,
+            NOTIFICATION_URL + '/{0}'.format(self.notificationCode),
+            body=notification_response_xml.replace(
+                '<status>1</status>', '<status>3</status>'
+            ),
+            status=200,
+        )
+        # load notification
+        response = self.client.post(self.url, self.post_params)
+        self.assertEqual(response.status_code, 200)
+
+        # check transaction history
+        self.assertTrue(
+            TransactionHistory.objects.filter(
+                transaction=transaction,
+                status='aguardando'
+            )
+        )
+        self.assertTrue(
+            TransactionHistory.objects.filter(
+                transaction=transaction,
+                status='em_analise'
+            )
+        )
+        self.assertTrue(
+            TransactionHistory.objects.filter(
+                transaction=transaction,
+                status='pago'
+            )
+        )
+        transaction = Transaction.objects.get(pk=transaction.pk)
+        self.assertEqual(transaction.status, 'pago')
+
+        # mock requests
+        responses.reset()
+        responses.add(
+            responses.GET,
+            NOTIFICATION_URL + '/{0}'.format(self.notificationCode),
+            body=notification_response_xml.replace(
+                '<status>1</status>', '<status>4</status>'
+            ),
+            status=200,
+        )
+        # load notification
+        response = self.client.post(self.url, self.post_params)
+        self.assertEqual(response.status_code, 200)
+
+        # check transaction history
+        self.assertTrue(
+            TransactionHistory.objects.filter(
+                transaction=transaction,
+                status='aguardando'
+            )
+        )
+        self.assertTrue(
+            TransactionHistory.objects.filter(
+                transaction=transaction,
+                status='em_analise'
+            )
+        )
+        self.assertTrue(
+            TransactionHistory.objects.filter(
+                transaction=transaction,
+                status='pago'
+            )
+        )
+        self.assertTrue(
+            TransactionHistory.objects.filter(
+                transaction=transaction,
+                status='disponivel'
+            )
+        )
+        transaction = Transaction.objects.get(pk=transaction.pk)
+        self.assertEqual(transaction.status, 'disponivel')
+
+        # mock requests
+        responses.reset()
+        responses.add(
+            responses.GET,
+            NOTIFICATION_URL + '/{0}'.format(self.notificationCode),
+            body=notification_response_xml.replace(
+                '<status>1</status>', '<status>5</status>'
+            ),
+            status=200,
+        )
+        # load notification
+        response = self.client.post(self.url, self.post_params)
+        self.assertEqual(response.status_code, 200)
+
+        # check transaction history
+        self.assertTrue(
+            TransactionHistory.objects.filter(
+                transaction=transaction,
+                status='aguardando'
+            )
+        )
+        self.assertTrue(
+            TransactionHistory.objects.filter(
+                transaction=transaction,
+                status='em_analise'
+            )
+        )
+        self.assertTrue(
+            TransactionHistory.objects.filter(
+                transaction=transaction,
+                status='pago'
+            )
+        )
+        self.assertTrue(
+            TransactionHistory.objects.filter(
+                transaction=transaction,
+                status='disponivel'
+            )
+        )
+        self.assertTrue(
+            TransactionHistory.objects.filter(
+                transaction=transaction,
+                status='em_disputa'
+            )
+        )
+        transaction = Transaction.objects.get(pk=transaction.pk)
+        self.assertEqual(transaction.status, 'em_disputa')
+
+        # mock requests
+        responses.reset()
+        responses.add(
+            responses.GET,
+            NOTIFICATION_URL + '/{0}'.format(self.notificationCode),
+            body=notification_response_xml.replace(
+                '<status>1</status>', '<status>6</status>'
+            ),
+            status=200,
+        )
+        # load notification
+        response = self.client.post(self.url, self.post_params)
+        self.assertEqual(response.status_code, 200)
+
+        # check transaction history
+        self.assertTrue(
+            TransactionHistory.objects.filter(
+                transaction=transaction,
+                status='aguardando'
+            )
+        )
+        self.assertTrue(
+            TransactionHistory.objects.filter(
+                transaction=transaction,
+                status='em_analise'
+            )
+        )
+        self.assertTrue(
+            TransactionHistory.objects.filter(
+                transaction=transaction,
+                status='pago'
+            )
+        )
+        self.assertTrue(
+            TransactionHistory.objects.filter(
+                transaction=transaction,
+                status='disponivel'
+            )
+        )
+        self.assertTrue(
+            TransactionHistory.objects.filter(
+                transaction=transaction,
+                status='em_disputa'
+            )
+        )
+        self.assertTrue(
+            TransactionHistory.objects.filter(
+                transaction=transaction,
+                status='devolvido'
+            )
+        )
+        transaction = Transaction.objects.get(pk=transaction.pk)
+        self.assertEqual(transaction.status, 'devolvido')
+
+        # mock requests
+        responses.reset()
+        responses.add(
+            responses.GET,
+            NOTIFICATION_URL + '/{0}'.format(self.notificationCode),
+            body=notification_response_xml.replace(
+                '<status>1</status>', '<status>7</status>'
+            ),
+            status=200,
+        )
+        # load notification
+        response = self.client.post(self.url, self.post_params)
+        self.assertEqual(response.status_code, 200)
+
+        # check transaction history
+        self.assertTrue(
+            TransactionHistory.objects.filter(
+                transaction=transaction,
+                status='aguardando'
+            )
+        )
+        self.assertTrue(
+            TransactionHistory.objects.filter(
+                transaction=transaction,
+                status='em_analise'
+            )
+        )
+        self.assertTrue(
+            TransactionHistory.objects.filter(
+                transaction=transaction,
+                status='pago'
+            )
+        )
+        self.assertTrue(
+            TransactionHistory.objects.filter(
+                transaction=transaction,
+                status='disponivel'
+            )
+        )
+        self.assertTrue(
+            TransactionHistory.objects.filter(
+                transaction=transaction,
+                status='em_disputa'
+            )
+        )
+        self.assertTrue(
+            TransactionHistory.objects.filter(
+                transaction=transaction,
+                status='devolvido'
+            )
+        )
+        self.assertTrue(
+            TransactionHistory.objects.filter(
+                transaction=transaction,
+                status='cancelado'
+            )
+        )
+        transaction = Transaction.objects.get(pk=transaction.pk)
+        self.assertEqual(transaction.status, 'cancelado')

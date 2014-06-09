@@ -5,7 +5,7 @@ from django.views.decorators.csrf import csrf_exempt
 
 import six
 
-from .api import PagSeguroApi
+from pagseguro.api import PagSeguroApi
 
 
 @csrf_exempt

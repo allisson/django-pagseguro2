@@ -116,8 +116,20 @@ INSTALLED_APPS = (
     'django.contrib.auth',
     'django.contrib.contenttypes',
     'django.contrib.sessions',
+    'django.contrib.staticfiles',
+    'django.contrib.admin',
     'pagseguro',
+    'south',
     'django_nose',
 )
 
 TEST_RUNNER = 'django_nose.NoseTestSuiteRunner'
+
+
+# =============================================================================
+# Load settings_local.py if exists
+# =============================================================================
+try:
+    from settings_local import *
+except ImportError:
+    pass

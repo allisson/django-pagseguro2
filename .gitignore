@@ -54,3 +54,9 @@ docs/_build/
 
 # Vim swap
 *.swp
+
+# Sqlite database
+*.sqlite3
+
+# Django settings_local.py
+settings_local.py
