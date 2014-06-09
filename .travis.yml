@@ -11,9 +11,9 @@ env:
   - DJANGO_VERSION=1.5.8
   - DJANGO_VERSION=1.6.5
 install:
-  - pip install -q Django==$DJANGO_VERSION --use-mirrors
-  - pip install -e . --use-mirrors
-  - pip install -r .travis-requirements.txt --use-mirrors
+  - pip install -q Django==$DJANGO_VERSION
+  - pip install -e .
+  - pip install -r .travis-requirements.txt
 script:
   coverage run --source=pagseguro testapp/manage.py test pagseguro
 after_success:
