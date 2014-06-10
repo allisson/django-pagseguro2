@@ -36,14 +36,14 @@ def save_checkout(sender, data, **kwargs):
     from pagseguro.models import Checkout
 
     checkout = Checkout(
-        date=data['date'],
-        success=data['success']
+        date=data.get('date'),
+        success=data.get('success')
     )
 
     if checkout.success:
-        checkout.code = data['code']
+        checkout.code = data.get('code')
     else:
-        checkout.message = data['message']
+        checkout.message = data.get('message')
 
     checkout.save()
 
@@ -54,28 +54,24 @@ def update_transaction(sender, transaction, **kwargs):
     trans = transaction
 
     try:
-        transaction = Transaction.objects.get(code=trans['code'])
+        transaction = Transaction.objects.get(code=trans.get('code'))
     except Transaction.DoesNotExist:
-        transaction = Transaction(
-            code=trans['code'],
-            status=TRANSACTION_STATUS[trans['status']],
-            date=parse(trans['date']),
-            last_event_date=parse(trans['lastEventDate']),
-            content=json.dumps(trans, indent=2)
+        transaction = Transaction.objects.create(
+            code=trans.get('code'),
+            status=TRANSACTION_STATUS[trans.get('status')],
+            date=parse(trans.get('date')),
+            last_event_date=parse(trans.get('lastEventDate')),
+            content=json.dumps(trans, indent=2),
+            reference=trans.get('reference', None)
         )
 
-        if 'reference' in trans:
-            transaction.reference = trans['reference']
-
-        transaction.save()
-
-    transaction.status = TRANSACTION_STATUS[trans['status']]
-    transaction.last_event_date = parse(trans['lastEventDate'])
+    transaction.status = TRANSACTION_STATUS[trans.get('status')]
+    transaction.last_event_date = parse(trans.get('lastEventDate'))
     transaction.content = json.dumps(trans, indent=2)
     transaction.save()
 
     TransactionHistory.objects.create(
         transaction=transaction,
-        status=TRANSACTION_STATUS[trans['status']],
-        date=parse(trans['lastEventDate'])
+        status=TRANSACTION_STATUS[trans.get('status')],
+        date=parse(trans.get('lastEventDate'))
     )

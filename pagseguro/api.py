@@ -18,6 +18,12 @@ from pagseguro.forms import PagSeguroItemForm
 class PagSeguroItem(object):
 
     form_class = PagSeguroItemForm
+    id = None
+    description = None
+    amount = None
+    quantity = None
+    shipping_cost = None
+    weight = None
 
     def __init__(self, id, description, amount, quantity, shipping_cost=None,
                  weight=None):
@@ -84,7 +90,10 @@ class PagSeguroApi(object):
 
     def checkout(self):
         self.build_params()
-        response = requests.post(self.checkout_url, self.params)
+        headers = {'charset': 'UTF-8'}
+        response = requests.post(
+            self.checkout_url, self.params, headers=headers
+        )
 
         data = {}
 
