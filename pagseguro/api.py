@@ -90,7 +90,9 @@ class PagSeguroApi(object):
 
     def checkout(self):
         self.build_params()
-        headers = {'charset': 'UTF-8'}
+        headers = {
+            'content-type': 'application/x-www-form-urlencoded; charset=UTF-8'
+        }
         response = requests.post(
             self.checkout_url, self.params, headers=headers
         )
