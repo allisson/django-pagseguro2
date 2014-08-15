@@ -2,7 +2,7 @@
 from django.test import TestCase
 
 from decimal import Decimal
-import responses
+import httpretty
 from dateutil.parser import parse
 
 from pagseguro.api import PagSeguroItem, PagSeguroApi
@@ -171,15 +171,15 @@ class PagSeguroApiTest(TestCase):
         self.assertNotIn(self.item2, self.pagseguro_api.get_items())
         self.assertNotIn(self.item3, self.pagseguro_api.get_items())
 
-    @responses.activate
+    @httpretty.activate
     def test_invalid_checkout(self):
         self.pagseguro_api.add_item(self.item1)
         self.pagseguro_api.add_item(self.item2)
         self.pagseguro_api.add_item(self.item3)
 
         # mock requests
-        responses.add(
-            responses.POST,
+        httpretty.register_uri(
+            httpretty.POST,
             CHECKOUT_URL,
             body='Unauthorized',
             status=401,
@@ -190,15 +190,15 @@ class PagSeguroApiTest(TestCase):
         self.assertEqual(data['message'], 'Unauthorized')
         self.assertEqual(data['status_code'], 401)
 
-    @responses.activate
+    @httpretty.activate
     def test_valid_checkout(self):
         self.pagseguro_api.add_item(self.item1)
         self.pagseguro_api.add_item(self.item2)
         self.pagseguro_api.add_item(self.item3)
 
         # mock requests
-        responses.add(
-            responses.POST,
+        httpretty.register_uri(
+            httpretty.POST,
             CHECKOUT_URL,
             body=checkout_response_xml,
             status=200,
@@ -214,11 +214,11 @@ class PagSeguroApiTest(TestCase):
             '{0}?code={1}'.format(PAYMENT_URL, data['code'])
         )
 
-    @responses.activate
+    @httpretty.activate
     def test_get_invalid_notification(self):
         # mock requests
-        responses.add(
-            responses.GET,
+        httpretty.register_uri(
+            httpretty.GET,
             NOTIFICATION_URL + '/{0}'.format(
                 'A5182C-C9EF48EF48D2-1FF4AF6FAC82-EB2948'
             ),
@@ -232,11 +232,11 @@ class PagSeguroApiTest(TestCase):
         self.assertEqual(response.status_code, 401)
         self.assertEqual(response.text, 'Unauthorized')
 
-    @responses.activate
+    @httpretty.activate
     def test_get_valid_notification(self):
         # mock requests
-        responses.add(
-            responses.GET,
+        httpretty.register_uri(
+            httpretty.GET,
             NOTIFICATION_URL + '/{0}'.format(
                 'A5182C-C9EF48EF48D2-1FF4AF6FAC82-EB2948'
             ),

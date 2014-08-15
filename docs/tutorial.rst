@@ -87,9 +87,10 @@ Você pode adicionar informações como custo de envio e peso::
 
 Agora que temos os itens, podemos fazer o checkout para obter o código da transação::
 
-    >>> pagseguro_api = PagSeguroApi()
+    >>> pagseguro_api = PagSeguroApi(reference='id-unico-de-referencia-do-seu-sistema')
     >>> # voce poderia passar valores iniciais, ex: pagseguro_api = PagSeguroApi(email='meu@email.com', token='outrotoken')
     >>> # voce pode passar qualquer valor inicial que a documentacao do PagSeguro informa, exceto os itens.
+    >>> # o email e token são carregados automaticamente pelas variáveis do settings.
     >>> # adicionando itens
     >>> pagseguro_api.add_item(item1)
     >>> pagseguro_api.add_item(item2)

@@ -2,7 +2,7 @@
 from django.test import TestCase
 from django.core.urlresolvers import reverse
 
-import responses
+import httpretty
 import six
 
 from pagseguro.settings import NOTIFICATION_URL
@@ -92,11 +92,11 @@ class ReceiveNotificationViewTest(TestCase):
         )
         self.assertEqual(response.status_code, 400)
 
-    @responses.activate
+    @httpretty.activate
     def test_render_invalid_notification(self):
         # mock requests
-        responses.add(
-            responses.GET,
+        httpretty.register_uri(
+            httpretty.GET,
             NOTIFICATION_URL + '/{0}'.format(
                 'A5182C-C9EF48EF48D2-1FF4AF6FAC82-EB2948'
             ),
@@ -108,11 +108,11 @@ class ReceiveNotificationViewTest(TestCase):
         self.assertEqual(response.status_code, 400)
         self.assertEqual(response.content, six.b('Notificação inválida.'))
 
-    @responses.activate
+    @httpretty.activate
     def test_render(self):
         # mock requests
-        responses.add(
-            responses.GET,
+        httpretty.register_uri(
+            httpretty.GET,
             NOTIFICATION_URL + '/{0}'.format(
                 'A5182C-C9EF48EF48D2-1FF4AF6FAC82-EB2948'
             ),
