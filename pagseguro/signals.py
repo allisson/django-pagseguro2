@@ -62,7 +62,7 @@ def update_transaction(sender, transaction, **kwargs):
             date=parse(trans.get('date')),
             last_event_date=parse(trans.get('lastEventDate')),
             content=json.dumps(trans, indent=2),
-            reference=trans.get('reference', None)
+            reference=trans.get('reference', '')
         )
 
     transaction.status = TRANSACTION_STATUS[trans.get('status')]
