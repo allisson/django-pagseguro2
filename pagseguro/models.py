@@ -1,5 +1,7 @@
 # -*- coding: utf-8 -*-
+from __future__ import unicode_literals
 from django.db import models
+from django.utils.encoding import python_2_unicode_compatible
 
 from pagseguro.settings import PAGSEGURO_LOG_IN_MODEL
 from pagseguro.signals import (
@@ -19,6 +21,7 @@ TRANSACTION_STATUS_CHOICES = (
 )
 
 
+@python_2_unicode_compatible
 class Checkout(models.Model):
 
     code = models.CharField(
@@ -45,8 +48,8 @@ class Checkout(models.Model):
         help_text='Mensagem apresentada no caso de erro no checkout.'
     )
 
-    def __unicode__(self):
-        return self.pk
+    def __str__(self):
+        return '{0}'.format(self.pk)
 
     class Meta:
         ordering = ['-date']
@@ -54,6 +57,7 @@ class Checkout(models.Model):
         verbose_name_plural = 'Checkouts'
 
 
+@python_2_unicode_compatible
 class Transaction(models.Model):
 
     code = models.CharField(
@@ -95,7 +99,7 @@ class Transaction(models.Model):
         help_text='Transação no formato json.'
     )
 
-    def __unicode__(self):
+    def __str__(self):
         return self.code
 
     class Meta:
@@ -104,6 +108,7 @@ class Transaction(models.Model):
         verbose_name_plural = 'Transações'
 
 
+@python_2_unicode_compatible
 class TransactionHistory(models.Model):
 
     transaction = models.ForeignKey(
@@ -122,7 +127,7 @@ class TransactionHistory(models.Model):
         'Data'
     )
 
-    def __unicode__(self):
+    def __str__(self):
         '{0} - {1} - {2}'.format(
             self.transaction, self.status, self.date
         )

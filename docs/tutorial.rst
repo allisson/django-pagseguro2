@@ -2,7 +2,7 @@ Tutorial
 ============
 
 O django-pagseguro2 necessita do Django versão 1.3+,
-lembrando que o suporte ao python3 está presente apenas nas versões 1.5+. 
+lembrando que o suporte ao python3 está presente apenas nas versões 1.5+.
 
 ============
 Instalação
@@ -17,7 +17,7 @@ Configuração
 =============
 
 Adicione o app pagseguro no INSTALLED_APPS::
-    
+
     INSTALLED_APPS = (
         'django.contrib.auth',
         'django.contrib.contenttypes',
@@ -26,6 +26,12 @@ Adicione o app pagseguro no INSTALLED_APPS::
         'django.contrib.admin',
         'pagseguro',
     )
+
+O django-pagseguro2 suporta as migrações do django 1.7, caso você esteja usando o South, adicione a seguinte configuração no seu settings.py::
+
+    SOUTH_MIGRATION_MODULES = {
+        'pagseguro': 'pagseguro.south_migrations',
+    }
 
 Adicione as configurações no settings.py::
 
@@ -46,7 +52,7 @@ Adicione a view que recebe as notificações no urls.py::
 Trabalhando com a API de checkout
 =================================
 Recomendo que você abra um shell do Django para realizar os testes::
-    
+
     python manage.py shell
 
 Para começar, precisamos importar duas classes, PagSeguroItem e PagSeguroApi::
@@ -70,7 +76,7 @@ O PagSeguroItem representa um item que será adicionado a transação::
     None
 
 Você pode adicionar informações como custo de envio e peso::
-    
+
     >>> item2 = PagSeguroItem(id='0002', description='Meu item 0002', amount='150.00', quantity=1, shipping_cost='25.00', weight=500)
     >>> item2
     <PagSeguroItem: Meu item 0002>

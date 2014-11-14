@@ -5,7 +5,7 @@ import pagseguro
 version = pagseguro.__version__
 
 requires = [
-    'Django>=1.3',
+    'Django>=1.4',
     'six',
     'requests',
     'httpretty',

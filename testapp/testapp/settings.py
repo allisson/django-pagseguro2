@@ -119,12 +119,14 @@ INSTALLED_APPS = (
     'django.contrib.staticfiles',
     'django.contrib.admin',
     'pagseguro',
-    'south',
-    'django_nose',
 )
 
-TEST_RUNNER = 'django_nose.NoseTestSuiteRunner'
-
+import django
+if django.VERSION < (1, 7, 0):
+    SOUTH_MIGRATION_MODULES = {
+        'pagseguro': 'pagseguro.south_migrations',
+    }
+    INSTALLED_APPS += ('south', )
 
 # =============================================================================
 # Load settings_local.py if exists

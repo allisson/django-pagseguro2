@@ -43,7 +43,7 @@ Autor
 Principais características
 ==========================
 - Python: 2.6, 2.7, 3.2, 3.3 e 3.4.
-- Django: 1.3 (apenas python2), 1.4 (apenas python2), 1.5, 1.6.
+- Django: 1.4 (apenas python2), 1.5, 1.6, 1.7.
 - Processamento de requisições http/https usando a biblioteca `requests <http://github.com/kennethreitz/requests/>`_.
 - Excelente cobertura de testes (> 80%).
 - Documentação com exemplos práticos.

@@ -1,82 +1,62 @@
 # -*- coding: utf-8 -*-
-from south.utils import datetime_utils as datetime
-from south.db import db
-from south.v2 import SchemaMigration
-from django.db import models
+from __future__ import unicode_literals
+
+from django.db import models, migrations
 
 
-class Migration(SchemaMigration):
+class Migration(migrations.Migration):
 
-    def forwards(self, orm):
-        # Adding model 'Checkout'
-        db.create_table('pagseguro_checkout', (
-            ('id', self.gf('django.db.models.fields.AutoField')(primary_key=True)),
-            ('code', self.gf('django.db.models.fields.CharField')(max_length=100, blank=True)),
-            ('date', self.gf('django.db.models.fields.DateTimeField')()),
-            ('success', self.gf('django.db.models.fields.BooleanField')(db_index=True)),
-            ('message', self.gf('django.db.models.fields.TextField')(blank=True)),
-        ))
-        db.send_create_signal('pagseguro', ['Checkout'])
+    dependencies = [
+    ]
 
-        # Adding model 'Transaction'
-        db.create_table('pagseguro_transaction', (
-            ('id', self.gf('django.db.models.fields.AutoField')(primary_key=True)),
-            ('code', self.gf('django.db.models.fields.CharField')(unique=True, max_length=100, db_index=True)),
-            ('reference', self.gf('django.db.models.fields.CharField')(db_index=True, max_length=200, blank=True)),
-            ('status', self.gf('django.db.models.fields.CharField')(max_length=20, db_index=True)),
-            ('date', self.gf('django.db.models.fields.DateTimeField')()),
-            ('last_event_date', self.gf('django.db.models.fields.DateTimeField')()),
-            ('content', self.gf('django.db.models.fields.TextField')()),
-        ))
-        db.send_create_signal('pagseguro', ['Transaction'])
-
-        # Adding model 'TransactionHistory'
-        db.create_table('pagseguro_transactionhistory', (
-            ('id', self.gf('django.db.models.fields.AutoField')(primary_key=True)),
-            ('transaction', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['pagseguro.Transaction'])),
-            ('status', self.gf('django.db.models.fields.CharField')(max_length=20)),
-            ('date', self.gf('django.db.models.fields.DateTimeField')()),
-        ))
-        db.send_create_signal('pagseguro', ['TransactionHistory'])
-
-
-    def backwards(self, orm):
-        # Deleting model 'Checkout'
-        db.delete_table('pagseguro_checkout')
-
-        # Deleting model 'Transaction'
-        db.delete_table('pagseguro_transaction')
-
-        # Deleting model 'TransactionHistory'
-        db.delete_table('pagseguro_transactionhistory')
-
-
-    models = {
-        'pagseguro.checkout': {
-            'Meta': {'ordering': "['-date']", 'object_name': 'Checkout'},
-            'code': ('django.db.models.fields.CharField', [], {'max_length': '100', 'blank': 'True'}),
-            'date': ('django.db.models.fields.DateTimeField', [], {}),
-            'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
-            'message': ('django.db.models.fields.TextField', [], {'blank': 'True'}),
-            'success': ('django.db.models.fields.BooleanField', [], {'db_index': 'True'})
-        },
-        'pagseguro.transaction': {
-            'Meta': {'ordering': "['-date']", 'object_name': 'Transaction'},
-            'code': ('django.db.models.fields.CharField', [], {'unique': 'True', 'max_length': '100', 'db_index': 'True'}),
-            'content': ('django.db.models.fields.TextField', [], {}),
-            'date': ('django.db.models.fields.DateTimeField', [], {}),
-            'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
-            'last_event_date': ('django.db.models.fields.DateTimeField', [], {}),
-            'reference': ('django.db.models.fields.CharField', [], {'db_index': 'True', 'max_length': '200', 'blank': 'True'}),
-            'status': ('django.db.models.fields.CharField', [], {'max_length': '20', 'db_index': 'True'})
-        },
-        'pagseguro.transactionhistory': {
-            'Meta': {'ordering': "['-date']", 'object_name': 'TransactionHistory'},
-            'date': ('django.db.models.fields.DateTimeField', [], {}),
-            'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
-            'status': ('django.db.models.fields.CharField', [], {'max_length': '20'}),
-            'transaction': ('django.db.models.fields.related.ForeignKey', [], {'to': "orm['pagseguro.Transaction']"})
-        }
-    }
-
-    complete_apps = ['pagseguro']
+    operations = [
+        migrations.CreateModel(
+            name='Checkout',
+            fields=[
+                ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
+                ('code', models.CharField(help_text=b'C\xc3\xb3digo gerado para redirecionamento.', max_length=100, verbose_name=b'c\xc3\xb3digo', blank=True)),
+                ('date', models.DateTimeField(help_text=b'Data em que o checkout foi realizado.', verbose_name=b'Data')),
+                ('success', models.BooleanField(help_text=b'O checkout foi feito com sucesso?', db_index=True, verbose_name=b'Sucesso')),
+                ('message', models.TextField(help_text=b'Mensagem apresentada no caso de erro no checkout.', verbose_name=b'Mensagem de erro', blank=True)),
+            ],
+            options={
+                'ordering': ['-date'],
+                'verbose_name': 'Checkout',
+                'verbose_name_plural': 'Checkouts',
+            },
+            bases=(models.Model,),
+        ),
+        migrations.CreateModel(
+            name='Transaction',
+            fields=[
+                ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
+                ('code', models.CharField(help_text=b'O c\xc3\xb3digo da transa\xc3\xa7\xc3\xa3o.', unique=True, max_length=100, verbose_name=b'c\xc3\xb3digo', db_index=True)),
+                ('reference', models.CharField(help_text=b'A refer\xc3\xaancia passada na transa\xc3\xa7\xc3\xa3o.', max_length=200, verbose_name=b'refer\xc3\xaancia', db_index=True, blank=True)),
+                ('status', models.CharField(help_text=b'Status atual da transa\xc3\xa7\xc3\xa3o.', max_length=20, verbose_name=b'Status', db_index=True, choices=[(b'aguardando', b'Aguardando'), (b'em_analise', b'Em an\xc3\xa1lise'), (b'pago', b'Pago'), (b'disponivel', b'Dispon\xc3\xadvel'), (b'em_disputa', b'Em disputa'), (b'devolvido', b'Devolvido'), (b'cancelado', b'Cancelado')])),
+                ('date', models.DateTimeField(help_text=b'Data em que a transa\xc3\xa7\xc3\xa3o foi criada.', verbose_name=b'Data')),
+                ('last_event_date', models.DateTimeField(help_text=b'Data da \xc3\xbaltima altera\xc3\xa7\xc3\xa3o na transa\xc3\xa7\xc3\xa3o.', verbose_name=b'\xc3\x9altima altera\xc3\xa7\xc3\xa3o')),
+                ('content', models.TextField(help_text=b'Transa\xc3\xa7\xc3\xa3o no formato json.', verbose_name=b'Transa\xc3\xa7\xc3\xa3o')),
+            ],
+            options={
+                'ordering': ['-date'],
+                'verbose_name': 'Transa\xe7\xe3o',
+                'verbose_name_plural': 'Transa\xe7\xf5es',
+            },
+            bases=(models.Model,),
+        ),
+        migrations.CreateModel(
+            name='TransactionHistory',
+            fields=[
+                ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
+                ('status', models.CharField(help_text=b'Status da transa\xc3\xa7\xc3\xa3o.', max_length=20, verbose_name=b'Status', choices=[(b'aguardando', b'Aguardando'), (b'em_analise', b'Em an\xc3\xa1lise'), (b'pago', b'Pago'), (b'disponivel', b'Dispon\xc3\xadvel'), (b'em_disputa', b'Em disputa'), (b'devolvido', b'Devolvido'), (b'cancelado', b'Cancelado')])),
+                ('date', models.DateTimeField(verbose_name=b'Data')),
+                ('transaction', models.ForeignKey(verbose_name=b'Transa\xc3\xa7\xc3\xa3o', to='pagseguro.Transaction')),
+            ],
+            options={
+                'ordering': ['date'],
+                'verbose_name': 'Hist\xf3rico da transa\xe7\xe3o',
+                'verbose_name_plural': 'Hist\xf3ricos de transa\xe7\xf5es',
+            },
+            bases=(models.Model,),
+        ),
+    ]

@@ -1,4 +1,5 @@
 #-*- coding: utf-8 -*-
+from __future__ import unicode_literals
 import requests
 import xmltodict
 from dateutil.parser import parse
