@@ -128,7 +128,7 @@ class TransactionHistory(models.Model):
     )
 
     def __str__(self):
-        '{0} - {1} - {2}'.format(
+        return '{0} - {1} - {2}'.format(
             self.transaction, self.status, self.date
         )
 
