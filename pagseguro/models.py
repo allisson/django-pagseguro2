@@ -39,7 +39,8 @@ class Checkout(models.Model):
     success = models.BooleanField(
         'Sucesso',
         db_index=True,
-        help_text='O checkout foi feito com sucesso?'
+        help_text='O checkout foi feito com sucesso?',
+        default=False
     )
 
     message = models.TextField(
