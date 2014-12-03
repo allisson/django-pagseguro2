@@ -7,7 +7,7 @@ from datetime import datetime
 
 from pagseguro.settings import (
     PAGSEGURO_EMAIL, PAGSEGURO_TOKEN, CHECKOUT_URL, PAYMENT_URL,
-    NOTIFICATION_URL
+    NOTIFICATION_URL, TRANSACTION_URL
 )
 from pagseguro.signals import (
     notificacao_recebida, NOTIFICATION_STATUS, checkout_realizado,
@@ -53,6 +53,7 @@ class PagSeguroApi(object):
     checkout_url = CHECKOUT_URL
     redirect_url = PAYMENT_URL
     notification_url = NOTIFICATION_URL
+    transaction_url = TRANSACTION_URL
 
     itens = []
     base_params = {
@@ -155,3 +156,32 @@ class PagSeguroApi(object):
                 )
 
         return response
+
+    def get_transaction(self, transaction_id):
+        response = requests.get(
+            self.transaction_url + '/{0}'.format(transaction_id),
+            params={
+                'email': self.base_params['email'],
+                'token': self.base_params['token']
+            }
+        )
+
+        if response.status_code == 200:
+            root = xmltodict.parse(response.text)
+            transaction = root['transaction']
+
+            data = {
+                'transaction': transaction,
+                'status_code': response.status_code,
+                'success': True,
+                'date': datetime.now()
+            }
+        else:
+            data = {
+                'status_code': response.status_code,
+                'message': response.text,
+                'success': False,
+                'date': datetime.now()
+            }
+
+        return data
