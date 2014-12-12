@@ -38,3 +38,29 @@ class PagSeguroItemForm(forms.Form):
         max_value=30000,
         required=False
     )
+
+    def clean_amount(self):
+        amount = self.cleaned_data.get('amount')
+
+        if amount:
+            exponent = abs(amount.as_tuple().exponent)
+
+            if exponent != 2:
+                raise forms.ValidationError(
+                    'O amount deve conter duas casas decimais.'
+                )
+
+        return amount
+
+    def clean_shipping_cost(self):
+        shipping_cost = self.cleaned_data.get('shipping_cost')
+
+        if shipping_cost:
+            exponent = abs(shipping_cost.as_tuple().exponent)
+
+            if exponent != 2:
+                raise forms.ValidationError(
+                    'O shipping_cost deve conter duas casas decimais.'
+                )
+
+        return shipping_cost

@@ -117,6 +117,17 @@ Agora que temos os itens, podemos fazer o checkout para obter o código da trans
     >>> data['redirect_url']
     'https://sandbox.pagseguro.uol.com.br/v2/checkout/payment.html?code=D0C5A7F8E5E53268849D4F89DA3363E0'
 
+Você pode consultar os dados de uma transação::
+
+    >>> pagseguro_api = PagSeguroApi()
+    >>> data = pagseguro_api.get_transaction('437D1B99-A6E8-46F0-8C00-47B818615AA2')
+    >>> data['success']
+    True
+    >>> data['transaction']
+    OrderedDict([(u'date', u'2014-06-07T15:25:36.000-03:00'), (u'code', u'437D1B99-A6E8-46F0-8C00-47B818615AA2'), (u'type', u'1'), (u'status', u'3'), (u'lastEventDate', u'2014-06-07T15:55:37.000-03:00'), (u'paymentMethod', OrderedDict([(u'type', u'1'), (u'code', u'101')])), (u'grossAmount', u'275.00'), (u'discountAmount', u'0.00'), (u'feeAmount', u'14.12'), (u'netAmount', u'260.88'), (u'extraAmount', u'0.00'), (u'escrowEndDate', u'2014-06-21T15:55:37.000-03:00'), (u'installmentCount', u'1'), (u'itemCount', u'2'), (u'items', OrderedDict([(u'item', [OrderedDict([(u'id', u'0001'), (u'description', u'Meu item 0001'), (u'quantity', u'1'), (u'amount', u'100.00')]), OrderedDict([(u'id', u'0002'), (u'description', u'Meu item 0002'), (u'quantity', u'1'), (u'amount', u'150.00')])])])), (u'sender', OrderedDict([(u'name', u'Comprador Virtual'), (u'email', u'c11004631206281776849@sandbox.pagseguro.com.br'), (u'phone', OrderedDict([(u'areaCode', u'11'), (u'number', u'99999999')]))])), (u'shipping', OrderedDict([(u'address', OrderedDict([(u'street', u'RUA JOSE BRANCO RIBEIRO'), (u'number', u'840'), (u'complement', None), (u'district', u'Catol\xe9'), (u'city', u'CAMPINA GRANDE'), (u'state', u'PB'), (u'country', u'BRA'), (u'postalCode', u'58410175')])), (u'type', u'3'), (u'cost', u'25.00')]))])
+    >>> data['transaction']['code']
+    u'437D1B99-A6E8-46F0-8C00-47B818615AA2'
+
 ===================================
 Trabalhando com Signals de checkout
 ===================================
