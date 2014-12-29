@@ -55,31 +55,30 @@ class PagSeguroApi(object):
     notification_url = NOTIFICATION_URL
     transaction_url = TRANSACTION_URL
 
-    itens = []
-    base_params = {
-        'email': PAGSEGURO_EMAIL,
-        'token': PAGSEGURO_TOKEN,
-        'currency': 'BRL',
-    }
-    params = {}
-
     def __init__(self, **kwargs):
+        self.base_params = {
+            'email': PAGSEGURO_EMAIL,
+            'token': PAGSEGURO_TOKEN,
+            'currency': 'BRL',
+        }
         self.base_params.update(kwargs)
+        
+        self.params = {}
+        self.items = []
 
     def add_item(self, item):
-        self.itens.append(item)
+        self.items.append(item)
 
     def get_items(self):
-        return self.itens
+        return self.items
 
     def clear_items(self):
-        self.itens = []
+        self.items = []
 
     def build_params(self):
-        self.params = {}
         self.params.update(self.base_params)
 
-        for index, item in enumerate(self.itens):
+        for index, item in enumerate(self.items):
             count = index + 1
             self.params['itemId{0}'.format(count)] = item.id
             self.params['itemDescription{0}'.format(count)] = item.description
