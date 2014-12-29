@@ -358,3 +358,21 @@ class PagSeguroApiTest(TestCase):
             data['transaction']['code'],
             '9E884542-81B3-4419-9A75-BCC6FB495EF1'
         )
+
+    def test_base_params_is_instance_variable(self):
+        # Regression test
+        api1 = PagSeguroApi()
+        api2 = PagSeguroApi()
+        self.assertIsNot(api1.base_params, api2.base_params)
+
+    def test_params_is_instance_variable(self):
+        # Regression test
+        api1 = PagSeguroApi()
+        api2 = PagSeguroApi()
+        self.assertIsNot(api1.params, api2.params)
+
+    def test_items_is_instance_variable(self):
+        # Regression test
+        api1 = PagSeguroApi()
+        api2 = PagSeguroApi()
+        self.assertIsNot(api1.items, api2.items)
