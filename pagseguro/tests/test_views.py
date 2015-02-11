@@ -105,8 +105,9 @@ class ReceiveNotificationViewTest(TestCase):
         )
 
         response = self.client.post(self.url, self.post_params)
-        self.assertEqual(response.status_code, 400)
-        self.assertEqual(response.content, six.b('Notificação inválida.'))
+        self.assertContains(
+            response, six.u('Notificação inválida.'), status_code=400
+        )
 
     @httpretty.activate
     def test_render(self):
@@ -121,7 +122,8 @@ class ReceiveNotificationViewTest(TestCase):
         )
 
         response = self.client.post(self.url, self.post_params)
-        self.assertEqual(response.status_code, 200)
-        self.assertEqual(
-            response.content, six.b('Notificação recebida com sucesso.')
+        self.assertContains(
+            response,
+            six.u('Notificação recebida com sucesso.'),
+            status_code=200
         )
