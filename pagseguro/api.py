@@ -62,7 +62,7 @@ class PagSeguroApi(object):
             'currency': 'BRL',
         }
         self.base_params.update(kwargs)
-        
+
         self.params = {}
         self.items = []
 

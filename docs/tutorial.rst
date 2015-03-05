@@ -128,6 +128,20 @@ Você pode consultar os dados de uma transação::
     >>> data['transaction']['code']
     u'437D1B99-A6E8-46F0-8C00-47B818615AA2'
 
+Passando parâmetros extras na inicialização do PagSeguroApi::
+   
+    >>> from pagseguro.api import PagSeguroApi
+    >>> from decimal import Decimal
+    >>> extra_amount = Decimal('20.00')
+    >>> sender_email = 'user@email.com'
+    >>> sender_name = 'Fulano da Silva'
+    >>> sender_area_code = 83
+    >>> sender_phone = 11111111
+    >>> pagseguro_api = PagSeguroApi(reference='id-unico-de-referencia-do-seu-sistema', extraAmount=extra_amount, senderEmail=sender_email, senderName=sender_name, senderAreaCode=sender_area_code, senderPhone=sender_phone)
+
+Você pode passar qualquer parâmetro http, exceto os relativos aos itens. `Referência. <https://pagseguro.uol.com.br/v2/guia-de-integracao/api-de-pagamentos.html>`_ 
+
+
 ===================================
 Trabalhando com Signals de checkout
 ===================================
