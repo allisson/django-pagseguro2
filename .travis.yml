@@ -9,7 +9,7 @@ env:
   - DJANGO_VERSION=1.4.19
   - DJANGO_VERSION=1.5.12
   - DJANGO_VERSION=1.6.10
-  - DJANGO_VERSION=1.7.4
+  - DJANGO_VERSION=1.7.5
 install:
   - pip install -q Django==$DJANGO_VERSION
   - pip install -e .
@@ -21,7 +21,7 @@ after_success:
 matrix:
   exclude:
     - python: "2.6"
-      env: DJANGO_VERSION=1.7.4
+      env: DJANGO_VERSION=1.7.5
     - python: "3.2"
       env: DJANGO_VERSION=1.4.19
     - python: "3.3"
