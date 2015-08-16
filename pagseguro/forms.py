@@ -16,7 +16,7 @@ class PagSeguroItemForm(forms.Form):
     amount = forms.DecimalField(
         max_digits=9,
         max_value=9999999,
-        min_value=1,
+        min_value=0.001,
         decimal_places=2
     )
 
@@ -28,7 +28,7 @@ class PagSeguroItemForm(forms.Form):
     shipping_cost = forms.DecimalField(
         max_digits=9,
         max_value=9999999,
-        min_value=1,
+        min_value=0.001,
         decimal_places=2,
         required=False
     )
