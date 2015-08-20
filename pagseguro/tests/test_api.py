@@ -31,6 +31,19 @@ class PagSeguroItemTest(TestCase):
         self.data['amount'] = '10.000'
         self.assertRaises(Exception, lambda: PagSeguroItem(**self.data))
 
+    def test_min_max_amount(self):
+        self.data['amount'] = '0.00'
+        self.assertRaises(Exception, lambda: PagSeguroItem(**self.data))
+
+        self.data['amount'] = '0.01'
+        self.assertTrue(PagSeguroItem(**self.data))
+
+        self.data['amount'] = '9999999.01'
+        self.assertRaises(Exception, lambda: PagSeguroItem(**self.data))
+
+        self.data['amount'] = '9999999.00'
+        self.assertTrue(PagSeguroItem(**self.data))
+
     def test_invalid_quantity(self):
         self.data['quantity'] = 'ten'
         self.assertRaises(Exception, lambda: PagSeguroItem(**self.data))
@@ -52,6 +65,19 @@ class PagSeguroItemTest(TestCase):
 
         self.data['shipping_cost'] = '10.000'
         self.assertRaises(Exception, lambda: PagSeguroItem(**self.data))
+
+    def test_min_max_shipping_cost(self):
+        self.data['shipping_cost'] = '0.00'
+        self.assertRaises(Exception, lambda: PagSeguroItem(**self.data))
+
+        self.data['shipping_cost'] = '0.01'
+        self.assertTrue(PagSeguroItem(**self.data))
+
+        self.data['shipping_cost'] = '9999999.01'
+        self.assertRaises(Exception, lambda: PagSeguroItem(**self.data))
+
+        self.data['shipping_cost'] = '9999999.00'
+        self.assertTrue(PagSeguroItem(**self.data))
 
     def test_invalid_weight(self):
         self.data['weight'] = 'ten'

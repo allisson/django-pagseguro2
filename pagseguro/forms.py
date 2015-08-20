@@ -2,6 +2,8 @@
 from __future__ import unicode_literals
 from django import forms
 
+from decimal import Decimal
+
 
 class PagSeguroItemForm(forms.Form):
 
@@ -15,8 +17,8 @@ class PagSeguroItemForm(forms.Form):
 
     amount = forms.DecimalField(
         max_digits=9,
-        max_value=9999999,
-        min_value=1,
+        max_value=Decimal('9999999.00'),
+        min_value=Decimal('0.01'),
         decimal_places=2
     )
 
@@ -27,8 +29,8 @@ class PagSeguroItemForm(forms.Form):
 
     shipping_cost = forms.DecimalField(
         max_digits=9,
-        max_value=9999999,
-        min_value=1,
+        max_value=Decimal('9999999.00'),
+        min_value=Decimal('0.01'),
         decimal_places=2,
         required=False
     )
