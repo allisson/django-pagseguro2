@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 from setuptools import setup, find_packages
+import io
 import pagseguro
 
 version = pagseguro.__version__
@@ -21,7 +22,7 @@ setup(
     packages=find_packages(),
     license='MIT',
     description='Integração da API v2 do PagSeguro com o Django.',
-    long_description=open('docs/index.rst').read(),
+    long_description=io.open('docs/index.rst', 'rt', encoding='UTF-8').read(),
     url='https://github.com/allisson/django-pagseguro2',
     include_package_data=True,
     zip_safe=False,
