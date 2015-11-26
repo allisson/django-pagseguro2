@@ -213,3 +213,35 @@ Logando checkouts e transações no database
 Sempre que você configura o PAGSEGURO_LOG_IN_MODEL = True, todos os checkouts e transações são logados no database.
 
 Basta acessar o /admin/ e verificar.
+
+
+============================
+Transações seguras com HTTPS
+============================
+
+Caso você esteja usando as parametrizações de segurança do Django, adicione a respectiva linha no settings.py::
+
+    SECURE_REDIRECT_EXEMPT = 'retorno/pagseguro/'
+    
+Isso é necessário para que o Pagseguro consiga acessar a url de transação.
+
+==========
+CloudFlare
+==========
+
+Caso você utilize o serviço `CloudFlare <https://www.cloudflare.com/>`_ em servidor de produção, será necessário fazer algumas parametrizações no serviço para que as notificações enviadas pelo Pagseguro sejam recebidas corretamente, caso contrário, elas serão identificadas como ameaças pelo serviço e o acesso será negado.
+
+Para revolser esse detalhe, basta entrar na página "Threat control" (CloudFlare), clicar em "Add custom role" e adicionar os seguintes IPs disponibilizado pelo PagSeguro abaixo.
+
+
+*186.234.16.8
+*186.234.16.9
+*186.234.48.8
+*186.234.48.9
+*186.234.144.17
+*186.234.144.18
+*200.147.112.136
+*200.147.112.137 
+
+Após adicioná-los, clique em "Trust +".
+
