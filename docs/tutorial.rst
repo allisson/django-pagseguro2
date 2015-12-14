@@ -40,6 +40,10 @@ Adicione as configurações no settings.py::
     PAGSEGURO_SANDBOX = True # se o valor for True, as requisições a api serão feitas usando o PagSeguro Sandbox.
     PAGSEGURO_LOG_IN_MODEL = True # se o valor for True, os checkouts e transações vão ser logadas no database.
 
+Ao utilizar o django-pagseguro2 em produção, tenha certeza de definir a
+configuração ``PAGSEGURO_SANDBOX`` como ``False`` uma vez que o valor padrão é
+``True``.
+
 Adicione a view que recebe as notificações no urls.py::
 
     urlpatterns = patterns(
@@ -129,7 +133,7 @@ Você pode consultar os dados de uma transação::
     u'437D1B99-A6E8-46F0-8C00-47B818615AA2'
 
 Passando parâmetros extras na inicialização do PagSeguroApi::
-   
+
     >>> from pagseguro.api import PagSeguroApi
     >>> from decimal import Decimal
     >>> extra_amount = Decimal('20.00')
@@ -139,7 +143,7 @@ Passando parâmetros extras na inicialização do PagSeguroApi::
     >>> sender_phone = 11111111
     >>> pagseguro_api = PagSeguroApi(reference='id-unico-de-referencia-do-seu-sistema', extraAmount=extra_amount, senderEmail=sender_email, senderName=sender_name, senderAreaCode=sender_area_code, senderPhone=sender_phone)
 
-Você pode passar qualquer parâmetro http, exceto os relativos aos itens. `Referência. <https://pagseguro.uol.com.br/v2/guia-de-integracao/api-de-pagamentos.html>`_ 
+Você pode passar qualquer parâmetro http, exceto os relativos aos itens. `Referência. <https://pagseguro.uol.com.br/v2/guia-de-integracao/api-de-pagamentos.html>`_
 
 
 ===================================
@@ -222,7 +226,7 @@ Transações seguras com HTTPS
 Caso você esteja usando as parametrizações de segurança do Django, adicione a respectiva linha no settings.py::
 
     SECURE_REDIRECT_EXEMPT = 'retorno/pagseguro/'
-    
+
 Isso é necessário para que o Pagseguro consiga acessar a url de transação.
 
 ==========
@@ -234,14 +238,14 @@ Caso você utilize o serviço `CloudFlare <https://www.cloudflare.com/>`_ em ser
 Para revolser esse detalhe, basta entrar na página "Threat control" (CloudFlare), clicar em "Add custom role" e adicionar os seguintes IPs disponibilizado pelo PagSeguro abaixo.
 
 
-*186.234.16.8
-*186.234.16.9
-*186.234.48.8
-*186.234.48.9
-*186.234.144.17
-*186.234.144.18
-*200.147.112.136
-*200.147.112.137 
+* 186.234.16.8
+* 186.234.16.9
+* 186.234.48.8
+* 186.234.48.9
+* 186.234.144.17
+* 186.234.144.18
+* 200.147.112.136
+* 200.147.112.137
 
 Após adicioná-los, clique em "Trust +".
 
