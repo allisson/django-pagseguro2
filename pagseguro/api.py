@@ -7,7 +7,7 @@ from datetime import datetime
 
 from pagseguro.settings import (
     PAGSEGURO_EMAIL, PAGSEGURO_TOKEN, CHECKOUT_URL, PAYMENT_URL,
-    NOTIFICATION_URL, TRANSACTION_URL
+    NOTIFICATION_URL, TRANSACTION_URL, SESSION_URL
 )
 from pagseguro.signals import (
     notificacao_recebida, NOTIFICATION_STATUS, checkout_realizado,
@@ -181,6 +181,41 @@ class PagSeguroApi(object):
                 'message': response.text,
                 'success': False,
                 'date': datetime.now()
+            }
+
+        return data
+
+
+class PagSeguroApiTransparente(PagSeguroApi):
+
+    session_url = SESSION_URL
+
+    def get_session_id(self):
+        response = requests.post(
+            self.session_url,
+            params={
+                'email': self.base_params['email'],
+                'token': self.base_params['token']
+            }
+        )
+
+        if response.status_code == 200:
+            root = xmltodict.parse(response.text)
+            session_id = root['session']['id']
+            data = {
+                'session_id': session_id,
+                'status_code': response.status_code,
+                'success': True,
+                'date': datetime.now()
+
+            }
+        else:
+            data = {
+                'status_code': response.status_code,
+                'message': response.text,
+                'success': False,
+                'date': datetime.now()
+
             }
 
         return data

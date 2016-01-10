@@ -7,7 +7,8 @@ from dateutil.parser import parse
 
 from pagseguro.api import PagSeguroItem, PagSeguroApi
 from pagseguro.settings import (
-    CHECKOUT_URL, PAYMENT_URL, NOTIFICATION_URL, TRANSACTION_URL
+    CHECKOUT_URL, PAYMENT_URL, NOTIFICATION_URL,
+    TRANSACTION_URL, SESSION_URL
 )
 
 
@@ -220,6 +221,11 @@ checkout_response_xml = '''<?xml version="1.0" encoding="UTF-8"?>
   <date>2014-06-07T00:52:04.000-03:00</date>
 </checkout>'''
 
+session_response_xml = '''<?xml version="1.0" encoding="UTF-8"?>
+<session>
+  <id>620f99e348c24f07877c927b353e49d3</id>
+</session>'''
+
 
 class PagSeguroApiTest(TestCase):
 
@@ -383,6 +389,23 @@ class PagSeguroApiTest(TestCase):
         self.assertEqual(
             data['transaction']['code'],
             '9E884542-81B3-4419-9A75-BCC6FB495EF1'
+        )
+
+    @httpretty.activate
+    def test_get_session_id(self):
+        # mock requests
+        httpretty.register_uri(
+            httpretty.POST,
+            SESSION_URL,
+            body=session_response_xml,
+            status=200,
+        )
+
+        data = self.pagseguro_api.get_session_id()
+        self.assertEqual(data['status_code'], 200)
+        self.assertEqual(
+            data['session_id'],
+            '620f99e348c24f07877c927b353e49d3'
         )
 
     def test_base_params_is_instance_variable(self):
