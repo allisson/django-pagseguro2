@@ -200,11 +200,14 @@ class PagSeguroApiTransparente(PagSeguroApi):
     def set_receiver_email(self, email):
         self.params['receiverEmail'] = email
 
-    def set_payment_method(self, payment_method):
-        self.params['paymentMethod'] = payment_method
+    def set_payment_method(self, method):
+        self.params['paymentMethod'] = method
 
     def set_extra_amount(self, amount):
         self.params['extraAmount'] = amount
+
+    def set_notification_url(self, url):
+        self.params['notificationURL'] = url
 
     def set_sender(self, name, area_code, phone, email,
                    cpf, cnpj, born_date):
