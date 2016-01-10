@@ -194,6 +194,33 @@ class PagSeguroApiTransparente(PagSeguroApi):
         super(PagSeguroApiTransparente, self).__init__(**kwargs)
         self.base_params['paymentMode'] = 'default'
 
+    def set_sender_hash(self, hash_code):
+        self.params['senderHash'] = hash_code
+
+    def set_sender(self, name, area_code, phone, email,
+                   cpf, cnpj, born_date):
+        self.params['senderName'] = name
+        self.params['senderAreaCode'] = area_code
+        self.params['senderPhone'] = phone
+        self.params['senderEmail'] = email
+        self.params['senderCPF'] = cpf
+        self.params['senderCNPJ'] = cnpj
+        self.params['senderBornDate'] = born_date
+
+    def set_shipping(self, street, number, complement, district,
+                     postal_code, city, state, country, cost=None,
+                     shipping_type=None):
+        self.params['shippingAddressStreet'] = street
+        self.params['shippingAddressNumber'] = number
+        self.params['shippingAddressComplement'] = complement
+        self.params['shippingAddressDistrict'] = district
+        self.params['shippingAddressPostalCode'] = postal_code
+        self.params['shippingAddressCity'] = city
+        self.params['shippingAddressState'] = state
+        self.params['shippingAddressCountry'] = country
+        self.params['shippingCost'] = cost
+        self.params['shippingType'] = shipping_type
+
     def get_session_id(self):
         response = requests.post(
             self.session_url,
