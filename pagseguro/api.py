@@ -197,8 +197,14 @@ class PagSeguroApiTransparente(PagSeguroApi):
     def set_sender_hash(self, hash_code):
         self.params['senderHash'] = hash_code
 
+    def set_receiver_email(self, email):
+        self.params['receiverEmail'] = email
+
     def set_payment_method(self, payment_method):
         self.params['paymentMethod'] = payment_method
+
+    def set_extra_amount(self, amount):
+        self.params['extraAmount'] = amount
 
     def set_sender(self, name, area_code, phone, email,
                    cpf, cnpj, born_date):
