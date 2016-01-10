@@ -190,6 +190,10 @@ class PagSeguroApiTransparente(PagSeguroApi):
 
     session_url = SESSION_URL
 
+    def __init__(self, **kwargs):
+        super(PagSeguroApiTransparente, self).__init__(**kwargs)
+        self.base_params['paymentMode'] = 'default'
+
     def get_session_id(self):
         response = requests.post(
             self.session_url,
