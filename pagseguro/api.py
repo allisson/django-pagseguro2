@@ -233,6 +233,43 @@ class PagSeguroApiTransparente(PagSeguroApi):
         self.params['shippingCost'] = cost
         self.params['shippingType'] = shipping_type
 
+    def checkout(self):
+        self.build_params()
+        headers = {
+            'content-type': 'application/x-www-form-urlencoded; charset=UTF-8'
+        }
+        response = requests.post(
+            self.checkout_url, self.params, headers=headers
+        )
+
+        if response.status_code == 200:
+            root = xmltodict.parse(response.text)
+            transaction = root['transaction']
+            data = {
+                'transaction': transaction,
+                'status_code': response.status_code,
+                'success': True
+            }
+            checkout_realizado_com_sucesso.send(
+                sender=self, data=data
+            )
+        else:
+            data = {
+                'status_code': response.status_code,
+                'message': response.text,
+                'success': False,
+                'date': datetime.now()
+            }
+            checkout_realizado_com_erro.send(
+                sender=self, data=data
+            )
+
+        checkout_realizado.send(
+            sender=self, data=data
+        )
+
+        return data
+
     def get_session_id(self):
         response = requests.post(
             self.session_url,
