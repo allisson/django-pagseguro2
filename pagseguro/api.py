@@ -248,7 +248,9 @@ class PagSeguroApiTransparent(PagSeguroApi):
             data = {
                 'transaction': transaction,
                 'status_code': response.status_code,
-                'success': True
+                'success': True,
+                'date': parse(transaction['date']),
+                'code': transaction['code'],
             }
             checkout_realizado_com_sucesso.send(
                 sender=self, data=data
