@@ -186,12 +186,12 @@ class PagSeguroApi(object):
         return data
 
 
-class PagSeguroApiTransparente(PagSeguroApi):
+class PagSeguroApiTransparent(PagSeguroApi):
 
     session_url = SESSION_URL
 
     def __init__(self, **kwargs):
-        super(PagSeguroApiTransparente, self).__init__(**kwargs)
+        super(PagSeguroApiTransparent, self).__init__(**kwargs)
         self.base_params['paymentMode'] = 'default'
 
     def set_sender_hash(self, hash_code):

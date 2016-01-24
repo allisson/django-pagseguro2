@@ -5,7 +5,7 @@ from decimal import Decimal
 import httpretty
 from dateutil.parser import parse
 
-from pagseguro.api import PagSeguroItem, PagSeguroApi, PagSeguroApiTransparente
+from pagseguro.api import PagSeguroItem, PagSeguroApi, PagSeguroApiTransparent
 from pagseguro.settings import (
     CHECKOUT_URL, PAYMENT_URL, NOTIFICATION_URL,
     TRANSACTION_URL, SESSION_URL
@@ -411,10 +411,10 @@ session_response_xml = '''<?xml version="1.0" encoding="UTF-8"?>
 </session>'''
 
 
-class PagSeguroApiTransparenteTest(TestCase):
+class PagSeguroApiTransparentTest(TestCase):
 
     def setUp(self):
-        self.pagseguro_api = PagSeguroApiTransparente()
+        self.pagseguro_api = PagSeguroApiTransparent()
 
     @httpretty.activate
     def test_get_session_id(self):
