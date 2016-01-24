@@ -239,7 +239,7 @@ class PagSeguroApiTransparent(PagSeguroApi):
             'content-type': 'application/x-www-form-urlencoded; charset=UTF-8'
         }
         response = requests.post(
-            self.checkout_url, self.params, headers=headers
+            self.transaction_url, self.params, headers=headers
         )
 
         if response.status_code == 200:
