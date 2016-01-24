@@ -61,3 +61,6 @@ docs/_build/
 # Django settings_local.py
 settings_local.py
 .DS_Store
+
+# pycharm .idea
+.idea/
