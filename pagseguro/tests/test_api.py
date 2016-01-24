@@ -221,6 +221,59 @@ checkout_response_xml = '''<?xml version="1.0" encoding="UTF-8"?>
   <date>2014-06-07T00:52:04.000-03:00</date>
 </checkout>'''
 
+transparent_response_xml = '''<?xml version="1.0" encoding="ISO-8859-1" standalone="yes"?>
+<transaction>
+    <date>2011-02-05T15:46:12.000-02:00</date>
+    <lastEventDate>2011-02-15T17:39:14.000-03:00</lastEventDate>
+    <code>9E884542-81B3-4419-9A75-BCC6FB495EF1</code>
+    <type>1</type>
+    <status>1</status>
+    <paymentMethod>
+        <type>2</type>
+        <code>202</code>
+    </paymentMethod>
+    <paymentLink>
+        https://pagseguro.uol.com.br/checkout/imprimeBoleto.jhtml?code=314601B208B24A5CA53260000F7BB0D
+    </paymentLink>
+    <grossAmount>24300.00</grossAmount>
+    <discountAmount>0.00</discountAmount>
+    <feeAmount>0.00</feeAmount>
+    <netAmount>24300.00</netAmount>
+    <extraAmount>0.00</extraAmount>
+    <installmentCount>1</installmentCount>
+    <itemCount>1</itemCount>
+    <items>
+        <item>
+            <id>0001</id>
+            <description>Notebook Prata</description>
+            <quantity>1</quantity>
+            <amount>24300.00</amount>
+        </item>
+    </items>
+    <sender>
+        <name>Jose Comprador</name>
+        <email>comprador@uol.com.br</email>
+        <phone>
+            <areaCode>11</areaCode>
+            <number>56273440</number>
+        </phone>
+    </sender>
+    <shipping>
+        <address>
+            <street>Av. Brig. Faria Lima</street>
+            <number>1384</number>
+            <complement>5o andar</complement>
+            <district>Jardim Paulistano</district>
+            <postalCode>01452002</postalCode>
+            <city>Sao Paulo</city>
+            <state>SP</state>
+            <country>BRA</country>
+        </address>
+        <type>3</type>
+        <cost>0.00</cost>
+    </shipping>
+</transaction>'''
+
 
 class PagSeguroApiTest(TestCase):
 
@@ -414,6 +467,12 @@ session_response_xml = '''<?xml version="1.0" encoding="UTF-8"?>
 class PagSeguroApiTransparentTest(TestCase):
 
     def setUp(self):
+        self.item1 = PagSeguroItem(
+            id='0001',
+            description='Notebook Prata',
+            amount='24300.00',
+            quantity=1
+        )
         self.pagseguro_api = PagSeguroApiTransparent()
 
     def test_set_sender_hash(self):
@@ -461,7 +520,7 @@ class PagSeguroApiTransparentTest(TestCase):
         shipping = {
             'street': "Av. Brigadeiro Faria Lima",
             'number': 1384,
-            'complement': '1 andar',
+            'complement': '5o andar',
             'district': 'Jardim Paulistano',
             'postal_code': 01452002,
             'city': 'Sao Paulo',
@@ -507,3 +566,57 @@ class PagSeguroApiTransparentTest(TestCase):
         data = self.pagseguro_api.get_session_id()
         self.assertEqual(data['status_code'], 401)
         self.assertEqual(data['message'], 'Unauthorized')
+
+    @httpretty.activate
+    def test_valid_checkout(self):
+        sender = {
+            'name': 'Jose Comprador',
+            'area_code': 11,
+            'phone': 56273440,
+            'email': 'comprador@uol.com.br',
+            'cpf': '22111944785',
+        }
+        shipping = {
+            'street': "Av. Brigadeiro Faria Lima",
+            'number': 1384,
+            'complement': '5o andar',
+            'district': 'Jardim Paulistano',
+            'postal_code': 01452002,
+            'city': 'Sao Paulo',
+            'state': 'SP',
+            'country': 'BRA',
+        }
+        self.pagseguro_api.add_item(self.item1)
+        self.pagseguro_api.set_sender_hash('abc123')
+        self.pagseguro_api.set_receiver_email('suporte@loja.com.br')
+        self.pagseguro_api.set_payment_method('boleto')
+        self.pagseguro_api.set_extra_amount(1.0)
+        self.pagseguro_api.set_notification_url('https://sualoja.com.br/notifica.html')
+        self.pagseguro_api.set_sender(**sender)
+        self.pagseguro_api.set_shipping(**shipping)
+        # mock requests
+        httpretty.register_uri(
+            httpretty.POST,
+            TRANSACTION_URL,
+            body=transparent_response_xml,
+            status=200,
+        )
+        data = self.pagseguro_api.checkout()
+        self.assertEqual(data['success'], True)
+        self.assertEqual(data['status_code'], 200)
+        self.assertEqual(data['code'], '9E884542-81B3-4419-9A75-BCC6FB495EF1')
+        self.assertEqual(data['date'], parse('2011-02-05T15:46:12.000-02:00'))
+
+    @httpretty.activate
+    def test_invalid_checkout(self):
+        # mock requests
+        httpretty.register_uri(
+            httpretty.POST,
+            TRANSACTION_URL,
+            body='Unauthorized',
+            status=401,
+        )
+        data = self.pagseguro_api.checkout()
+        self.assertEqual(data['success'], False)
+        self.assertEqual(data['message'], 'Unauthorized')
+        self.assertEqual(data['status_code'], 401)
