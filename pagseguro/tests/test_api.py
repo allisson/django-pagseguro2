@@ -416,6 +416,69 @@ class PagSeguroApiTransparentTest(TestCase):
     def setUp(self):
         self.pagseguro_api = PagSeguroApiTransparent()
 
+    def test_set_sender_hash(self):
+        hsh = 'abc123'
+        self.pagseguro_api.set_sender_hash(hsh)
+        self.assertEqual(self.pagseguro_api.params['senderHash'], hsh)
+
+    def test_set_receiver_email(self):
+        email = 'suporte@loja.com.br'
+        self.pagseguro_api.set_receiver_email(email)
+        self.assertEqual(self.pagseguro_api.params['receiverEmail'], email)
+
+    def test_set_payment_method(self):
+        method = 'boleto'
+        self.pagseguro_api.set_payment_method(method)
+        self.assertEqual(self.pagseguro_api.params['paymentMethod'], method)
+
+    def test_set_extra_amount(self):
+        amount = 1.0
+        self.pagseguro_api.set_extra_amount(amount)
+        self.assertEqual(self.pagseguro_api.params['extraAmount'], amount)
+
+    def test_set_notification_url(self):
+        url = 'https://sualoja.com.br/notifica.html'
+        self.pagseguro_api.set_notification_url(url)
+        self.assertEqual(self.pagseguro_api.params['notificationURL'], url)
+
+    def test_set_sender(self):
+        sender = {
+            'name': 'Jose Comprador',
+            'area_code': 11,
+            'phone': 56273440,
+            'email': 'comprador@uol.com.br',
+            'cpf': '22111944785',
+        }
+        self.pagseguro_api.set_sender(**sender)
+        params = self.pagseguro_api.params
+        self.assertEqual(params['senderName'], sender['name'])
+        self.assertEqual(params['senderAreaCode'], sender['area_code'])
+        self.assertEqual(params['senderPhone'], sender['phone'])
+        self.assertEqual(params['senderEmail'], sender['email'])
+        self.assertEqual(params['senderCPF'], sender['cpf'])
+
+    def test_set_shipping(self):
+        shipping = {
+            'street': "Av. Brigadeiro Faria Lima",
+            'number': 1384,
+            'complement': '1 andar',
+            'district': 'Jardim Paulistano',
+            'postal_code': 01452002,
+            'city': 'Sao Paulo',
+            'state': 'SP',
+            'country': 'BRA',
+        }
+        self.pagseguro_api.set_shipping(**shipping)
+        params = self.pagseguro_api.params
+        self.assertEqual(params['shippingAddressStreet'], shipping['street'])
+        self.assertEqual(params['shippingAddressNumber'], shipping['number'])
+        self.assertEqual(params['shippingAddressComplement'], shipping['complement'])
+        self.assertEqual(params['shippingAddressDistrict'], shipping['district'])
+        self.assertEqual(params['shippingAddressPostalCode'], shipping['postal_code'])
+        self.assertEqual(params['shippingAddressCity'], shipping['city'])
+        self.assertEqual(params['shippingAddressState'], shipping['state'])
+        self.assertEqual(params['shippingAddressCountry'], shipping['country'])
+
     @httpretty.activate
     def test_get_session_id(self):
         # mock requests

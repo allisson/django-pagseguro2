@@ -210,7 +210,7 @@ class PagSeguroApiTransparent(PagSeguroApi):
         self.params['notificationURL'] = url
 
     def set_sender(self, name, area_code, phone, email,
-                   cpf, cnpj, born_date):
+                   cpf, cnpj=None, born_date=None):
         self.params['senderName'] = name
         self.params['senderAreaCode'] = area_code
         self.params['senderPhone'] = phone
