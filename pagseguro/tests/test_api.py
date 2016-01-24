@@ -480,7 +480,7 @@ class PagSeguroApiTransparentTest(TestCase):
         self.assertEqual(params['shippingAddressCountry'], shipping['country'])
 
     @httpretty.activate
-    def test_get_session_id(self):
+    def test_valid_get_session_id(self):
         # mock requests
         httpretty.register_uri(
             httpretty.POST,
@@ -488,10 +488,22 @@ class PagSeguroApiTransparentTest(TestCase):
             body=session_response_xml,
             status=200,
         )
-
         data = self.pagseguro_api.get_session_id()
         self.assertEqual(data['status_code'], 200)
         self.assertEqual(
             data['session_id'],
             '620f99e348c24f07877c927b353e49d3'
         )
+
+    @httpretty.activate
+    def test_invalid_get_session_id(self):
+        # mock requests
+        httpretty.register_uri(
+            httpretty.POST,
+            SESSION_URL,
+            body='Unauthorized',
+            status=401,
+        )
+        data = self.pagseguro_api.get_session_id()
+        self.assertEqual(data['status_code'], 401)
+        self.assertEqual(data['message'], 'Unauthorized')
