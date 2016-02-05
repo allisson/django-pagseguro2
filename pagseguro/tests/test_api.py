@@ -543,6 +543,48 @@ class PagSeguroApiTransparentTest(TestCase):
         self.assertEqual(params['shippingAddressState'], shipping['state'])
         self.assertEqual(params['shippingAddressCountry'], shipping['country'])
 
+    def test_set_creditcard_data(self):
+        data = {
+            'quantity': 5,
+            'value': 125.22,
+            'name': 'Jose Comprador',
+            'birth_date': '27/10/1987',
+            'cpf': '22111944785',
+            'token': '4as56d4a56d456as456dsa',
+            'area_code': 11,
+            'phone': 56273440,
+        }
+        self.pagseguro_api.set_creditcard_data(**data)
+        params = self.pagseguro_api.params
+        self.assertEqual(params['installmentQuantity'], data['quantity'])
+        self.assertEqual(params['installmentValue'], data['value'])
+        self.assertEqual(params['creditCardHolderName'], data['name'])
+        self.assertEqual(params['creditCardHolderBirthDate'], data['birth_date'])
+        self.assertEqual(params['creditCardHolderCPF'], data['cpf'])
+        self.assertEqual(params['creditCardToken'], data['token'])
+        self.assertEqual(params['creditCardHolderAreaCode'], data['area_code'])
+        self.assertEqual(params['creditCardHolderPhone'], data['phone'])
+
+    def test_set_creditcard_billing_address(self):
+        data = {
+            'street': 'Av. Brig. Faria Lima',
+            'number': 1384,
+            'district': 'Jardim Paulistano',
+            'postal_code': '01452002',
+            'city': 'Sao Paulo',
+            'state': 'SP',
+            'country': 'BRA',
+        }
+        self.pagseguro_api.set_creditcard_billing_address(**data)
+        params = self.pagseguro_api.params
+        self.assertEqual(params['billingAddressStreet'], data['street'])
+        self.assertEqual(params['billingAddressNumber'], data['number'])
+        self.assertEqual(params['billingAddressDistrict'], data['district'])
+        self.assertEqual(params['billingAddressPostalCode'], data['postal_code'])
+        self.assertEqual(params['billingAddressCity'], data['city'])
+        self.assertEqual(params['billingAddressState'], data['state'])
+        self.assertEqual(params['billingAddressCountry'], data['country'])
+
     @httpretty.activate
     def test_valid_get_session_id(self):
         # mock requests

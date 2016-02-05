@@ -236,6 +236,29 @@ class PagSeguroApiTransparent(PagSeguroApi):
         self.params['shippingCost'] = cost
         self.params['shippingType'] = shipping_type
 
+    def set_creditcard_data(self, quantity, value, name, birth_date,
+                            cpf, token, area_code, phone):
+        self.params['installmentQuantity'] = quantity
+        self.params['installmentValue'] = value
+        self.params['creditCardHolderName'] = name
+        self.params['creditCardHolderBirthDate'] = birth_date
+        self.params['creditCardHolderCPF'] = cpf
+        self.params['creditCardToken'] = token
+        self.params['creditCardHolderAreaCode'] = area_code
+        self.params['creditCardHolderPhone'] = phone
+
+    def set_creditcard_billing_address(self, street, number, district,
+                                       postal_code, city, state, country,
+                                       complement=None):
+        self.params['billingAddressStreet'] = street
+        self.params['billingAddressNumber'] = number
+        self.params['billingAddressDistrict'] = district
+        self.params['billingAddressPostalCode'] = postal_code
+        self.params['billingAddressCity'] = city
+        self.params['billingAddressState'] = state
+        self.params['billingAddressCountry'] = country
+        self.params['billingAddressComplement'] = complement
+
     def checkout(self):
         self.build_params()
         headers = {
