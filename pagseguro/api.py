@@ -209,6 +209,9 @@ class PagSeguroApiTransparent(PagSeguroApi):
     def set_notification_url(self, url):
         self.params['notificationURL'] = url
 
+    def set_bank_name(self, name):
+        self.params['bankName'] = name
+
     def set_sender(self, name, area_code, phone, email,
                    cpf, cnpj=None, born_date=None):
         self.params['senderName'] = name

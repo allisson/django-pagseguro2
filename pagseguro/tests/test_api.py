@@ -500,6 +500,11 @@ class PagSeguroApiTransparentTest(TestCase):
         self.pagseguro_api.set_notification_url(url)
         self.assertEqual(self.pagseguro_api.params['notificationURL'], url)
 
+    def test_set_bank_name(self):
+        name = 'bradesco'
+        self.pagseguro_api.set_bank_name(name)
+        self.assertEqual(self.pagseguro_api.params['bankName'], name)
+
     def test_set_sender(self):
         sender = {
             'name': 'Jose Comprador',
