@@ -146,24 +146,25 @@ Você pode passar qualquer parâmetro http, exceto os relativos aos itens. `Refe
 Trabalhando com a API de checkout transparente
 ==============================================
 
+Primeiramente, todas as configurações devem ter sido realizadas como descrito na seção configurações.
+
 Para realizar o checkout transparent você vai precisar de algumas informações adiquiridas
-utilizando a lib javascript oficial do pagseguro, em conjunto com a nossa api de checkout transparent.
+utilizando a `lib javascript oficial do pagseguro <http://download.uol.com.br/pagseguro/docs/pagseguro-checkout-transparente.pdf>`_,
+em conjunto com a nossa api de checkout transparent:
 
 - senderHash (Obrigatório para todas as compras)
 - creditCardToken (Obrigatório apenas para cartão de crédito)
 
-É necessário iniciar uma sessão de pagamento, para conseguir informações que serão usadas
-na api checkout transparent.
-
-Todas as configurações devem ter sido realizadas como descrito na seção configurações.
+Vamos iniciar uma sessão de pagamento para conseguir as informações acima.
 
 Importe a PagSeguroApiTransparent para iniciar uma sessão de pagamento::
 
     >>> from pagseguro.api import PagSeguroApiTransparent
-    # pegando a session id
-    >>> pagseguro_api.get_session_id()
-    # o método retorna uma id válida que será utilizada no Browser para iniciar
-    # uma sessao de chekout.
+    >>> # pegando a session id
+    >>> data = pagseguro_api.get_session_id()
+    >>> # o método get_session_id retorna um dicionário que contém uma id válida que será utilizada no Browser para iniciar
+    >>> # uma sessão de chekout transparent.
+    >>> session_id = data['session_id']
 
 No Browser, importe o javascript do pagseguro::
 
@@ -171,43 +172,41 @@ No Browser, importe o javascript do pagseguro::
         "https://stc.sandbox.pagseguro.uol.com.br/pagseguro/api/v2/checkout/pagseguro.directpayment.js">
     </script>
 
-Adicione o id da sessão adquirido no método get_session_id::
+Adicione o id da sessão adquirido ao chamar o método get_session_id::
 
     <script type="text/javascript">
         PagSeguroDirectPayment.setSessionId('ID_DA_SESSÃO');
     </script>
 
-Após iniciar uma sessão de checkout é preciso obter uma identificação do comprador (senderHash),
+Após iniciar uma sessão de checkout é preciso obter a identificação do comprador **senderHash**,
 essa informação é obrigatória para realizar o checkout transparent::
 
-<script type="text/javascript">
-    PagSeguroDirectPayment.getSenderHash();
-</script>
+    <script type="text/javascript">
+        PagSeguroDirectPayment.getSenderHash();
+    </script>
 
-Apenas para compras no cartão de crédito é obrigatório adquirir o creditCardToken que é
+Apenas para compras no cartão de crédito é obrigatório adquirir o **creditCardToken** que é
 utilizado para realizar o checkout transparent::
 
-<script type="text/javascript">
-PagSeguroDirectPayment.createCardToken({
-    cardNumber: {número},
-    brand: {bandeira},
-    cvv: {código de segurança},
-    expirationMonth: {mês de expiração},
-    expirationYear: {ano de expiração},
-    success: {função de callback para chamadas bem sucedidas},
-    error: {função de callback para chamadas que falharam},
-    complete: {função de callback para todas chamadas}
-});
-</script>
+    <script type="text/javascript">
+        PagSeguroDirectPayment.createCardToken({
+            cardNumber: {número},
+            brand: {bandeira},
+            cvv: {código de segurança},
+            expirationMonth: {mês de expiração},
+            expirationYear: {ano de expiração},
+            success: {função de callback para chamadas bem sucedidas},
+            error: {função de callback para chamadas que falharam},
+            complete: {função de callback para todas chamadas}
+        });
+    </script>
 
-Para mais informaçãos consultar a `api oficial <http://download.uol.com.br/pagseguro/docs/pagseguro-checkout-transparente.pdf>`_
+Para mais informaçãos consultar a `api oficial do pagseguro <http://download.uol.com.br/pagseguro/docs/pagseguro-checkout-transparente.pdf>`_.
 
-Agora vamos realizar o checkout transparent.
-
-Primeiramente importe a PagSeguroApiTransparent e o PagSeguroItem::
+Agora, vamos **realizar o checkout transparent**. Primeiramente, importe a PagSeguroApiTransparent e o PagSeguroItem::
 
     >>> from pagseguro.api import PagSeguroApiTransparent, PagseguroItem
-    # inicializando a api
+    >>> # inicializando a api
     >>> api = PagseguroApiTransparent()
 
 Adicione o item::
@@ -225,16 +224,16 @@ Adicione o endereço do comprador::
     >>> shipping = {'street': "Av. Brigadeiro Faria Lima", 'number': 1384, 'complement': '5o andar', 'district': 'Jardim Paulistano', 'postal_code': '01452002', 'city': 'Sao Paulo', 'state': 'SP', 'country': 'BRA',}
     >>> api.set_shipping(**shipping)
 
-Apenas para compras no boleto::
+Apenas para compras no **boleto**::
 
     >>> api.set_payment_method('boleto')
 
-Apenas para compras no débito::
+Apenas para compras no **débito**::
 
     >>> api.set_payment_method('eft')
     >>> api.set_bank_name('itau')
 
-Apenas para compras no cartão de crédito::
+Apenas para compras no **cartão de crédito**::
 
     >>> api.set_payment_method('creditcard')
     >>> data = {'quantity': 5, 'value': 125.22, 'name': 'Jose Comprador', 'birth_date': '27/10/1987', 'cpf': '22111944785', 'area_code': 11, 'phone': 56273440,}
@@ -243,7 +242,7 @@ Apenas para compras no cartão de crédito::
     >>> api.set_creditcard_billing_address(**billing_address)
     >>> api.api.set_creditcard_token('token-adquirido-no-browser')
 
-Para finalizar adcione a senderHash adquirida no browser::
+Para finalizar, adicione a senderHash adquirida no browser::
 
     >>> api.set_sender_hash('hash-adquirida-no-browser')
 
