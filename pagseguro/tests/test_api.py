@@ -550,7 +550,6 @@ class PagSeguroApiTransparentTest(TestCase):
             'name': 'Jose Comprador',
             'birth_date': '27/10/1987',
             'cpf': '22111944785',
-            'token': '4as56d4a56d456as456dsa',
             'area_code': 11,
             'phone': 56273440,
         }
@@ -561,7 +560,6 @@ class PagSeguroApiTransparentTest(TestCase):
         self.assertEqual(params['creditCardHolderName'], data['name'])
         self.assertEqual(params['creditCardHolderBirthDate'], data['birth_date'])
         self.assertEqual(params['creditCardHolderCPF'], data['cpf'])
-        self.assertEqual(params['creditCardToken'], data['token'])
         self.assertEqual(params['creditCardHolderAreaCode'], data['area_code'])
         self.assertEqual(params['creditCardHolderPhone'], data['phone'])
 
@@ -584,6 +582,11 @@ class PagSeguroApiTransparentTest(TestCase):
         self.assertEqual(params['billingAddressCity'], data['city'])
         self.assertEqual(params['billingAddressState'], data['state'])
         self.assertEqual(params['billingAddressCountry'], data['country'])
+
+    def test_set_creditcard_token(self):
+        token = '4as56d4a56d456as456dsa'
+        self.pagseguro_api.set_creditcard_token(token)
+        self.assertEqual(self.pagseguro_api.params['creditCardToken'], token)
 
     @httpretty.activate
     def test_valid_get_session_id(self):
