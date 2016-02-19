@@ -7,7 +7,7 @@ from datetime import datetime
 
 from pagseguro.settings import (
     PAGSEGURO_EMAIL, PAGSEGURO_TOKEN, CHECKOUT_URL, PAYMENT_URL,
-    NOTIFICATION_URL, TRANSACTION_URL
+    NOTIFICATION_URL, TRANSACTION_URL, SESSION_URL
 )
 from pagseguro.signals import (
     notificacao_recebida, NOTIFICATION_STATUS, checkout_realizado,
@@ -181,6 +181,151 @@ class PagSeguroApi(object):
                 'message': response.text,
                 'success': False,
                 'date': datetime.now()
+            }
+
+        return data
+
+
+class PagSeguroApiTransparent(PagSeguroApi):
+
+    session_url = SESSION_URL
+
+    def __init__(self, **kwargs):
+        super(PagSeguroApiTransparent, self).__init__(**kwargs)
+        self.base_params['paymentMode'] = 'default'
+
+    def set_sender_hash(self, hash_code):
+        self.params['senderHash'] = hash_code
+
+    def set_receiver_email(self, email):
+        self.params['receiverEmail'] = email
+
+    def set_payment_method(self, method):
+        self.params['paymentMethod'] = method
+
+    def set_extra_amount(self, amount):
+        self.params['extraAmount'] = amount
+
+    def set_notification_url(self, url):
+        self.params['notificationURL'] = url
+
+    def set_bank_name(self, name):
+        self.params['bankName'] = name
+
+    def set_sender(self, name, area_code, phone, email,
+                   cpf, cnpj=None, born_date=None):
+        self.params['senderName'] = name
+        self.params['senderAreaCode'] = area_code
+        self.params['senderPhone'] = phone
+        self.params['senderEmail'] = email
+        self.params['senderCPF'] = cpf
+        self.params['senderCNPJ'] = cnpj
+        self.params['senderBornDate'] = born_date
+
+    def set_shipping(self, street, number, complement, district,
+                     postal_code, city, state, country, cost=None,
+                     shipping_type=None):
+        self.params['shippingAddressStreet'] = street
+        self.params['shippingAddressNumber'] = number
+        self.params['shippingAddressComplement'] = complement
+        self.params['shippingAddressDistrict'] = district
+        self.params['shippingAddressPostalCode'] = postal_code
+        self.params['shippingAddressCity'] = city
+        self.params['shippingAddressState'] = state
+        self.params['shippingAddressCountry'] = country
+        self.params['shippingCost'] = cost
+        self.params['shippingType'] = shipping_type
+
+    def set_creditcard_data(self, quantity, value, name, birth_date,
+                            cpf, area_code, phone):
+        self.params['installmentQuantity'] = quantity
+        self.params['installmentValue'] = value
+        self.params['creditCardHolderName'] = name
+        self.params['creditCardHolderBirthDate'] = birth_date
+        self.params['creditCardHolderCPF'] = cpf
+        self.params['creditCardHolderAreaCode'] = area_code
+        self.params['creditCardHolderPhone'] = phone
+
+    def set_creditcard_billing_address(self, street, number, district,
+                                       postal_code, city, state, country,
+                                       complement=None):
+        self.params['billingAddressStreet'] = street
+        self.params['billingAddressNumber'] = number
+        self.params['billingAddressDistrict'] = district
+        self.params['billingAddressPostalCode'] = postal_code
+        self.params['billingAddressCity'] = city
+        self.params['billingAddressState'] = state
+        self.params['billingAddressCountry'] = country
+        self.params['billingAddressComplement'] = complement
+
+    def set_creditcard_token(self, token):
+        self.params['creditCardToken'] = token
+
+    def checkout(self):
+        self.build_params()
+        headers = {
+            'content-type': 'application/x-www-form-urlencoded; charset=UTF-8'
+        }
+        response = requests.post(
+            self.transaction_url, self.params, headers=headers
+        )
+
+        if response.status_code == 200:
+            root = xmltodict.parse(response.text)
+            transaction = root['transaction']
+            data = {
+                'transaction': transaction,
+                'status_code': response.status_code,
+                'success': True,
+                'date': parse(transaction['date']),
+                'code': transaction['code'],
+            }
+            checkout_realizado_com_sucesso.send(
+                sender=self, data=data
+            )
+        else:
+            data = {
+                'status_code': response.status_code,
+                'message': response.text,
+                'success': False,
+                'date': datetime.now()
+            }
+            checkout_realizado_com_erro.send(
+                sender=self, data=data
+            )
+
+        checkout_realizado.send(
+            sender=self, data=data
+        )
+
+        return data
+
+    def get_session_id(self):
+        response = requests.post(
+            self.session_url,
+            params={
+                'email': self.base_params['email'],
+                'token': self.base_params['token']
+            }
+        )
+
+        if response.status_code == 200:
+            root = xmltodict.parse(response.text)
+            session_id = root['session']['id']
+            data = {
+                'session_id': session_id,
+                'status_code': response.status_code,
+                'success': True,
+                'date': datetime.now()
+
+            }
+        else:
+            data = {
+                'status_code': response.status_code,
+                'message': response.text,
+                'success': False,
+                'date': datetime.now()
+
             }
 
         return data
