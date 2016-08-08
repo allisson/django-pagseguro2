@@ -1,9 +1,9 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals
+from django.utils import timezone
 import requests
 import xmltodict
 from dateutil.parser import parse
-from datetime import datetime
 
 from pagseguro.settings import (
     PAGSEGURO_EMAIL, PAGSEGURO_TOKEN, CHECKOUT_URL, PAYMENT_URL,
@@ -119,7 +119,7 @@ class PagSeguroApi(object):
                 'status_code': response.status_code,
                 'message': response.text,
                 'success': False,
-                'date': datetime.now()
+                'date': timezone.now()
             }
             checkout_realizado_com_erro.send(
                 sender=self, data=data
@@ -173,14 +173,14 @@ class PagSeguroApi(object):
                 'transaction': transaction,
                 'status_code': response.status_code,
                 'success': True,
-                'date': datetime.now()
+                'date': timezone.now()
             }
         else:
             data = {
                 'status_code': response.status_code,
                 'message': response.text,
                 'success': False,
-                'date': datetime.now()
+                'date': timezone.now()
             }
 
         return data
@@ -288,7 +288,7 @@ class PagSeguroApiTransparent(PagSeguroApi):
                 'status_code': response.status_code,
                 'message': response.text,
                 'success': False,
-                'date': datetime.now()
+                'date': timezone.now()
             }
             checkout_realizado_com_erro.send(
                 sender=self, data=data
@@ -316,7 +316,7 @@ class PagSeguroApiTransparent(PagSeguroApi):
                 'session_id': session_id,
                 'status_code': response.status_code,
                 'success': True,
-                'date': datetime.now()
+                'date': timezone.now()
 
             }
         else:
@@ -324,7 +324,7 @@ class PagSeguroApiTransparent(PagSeguroApi):
                 'status_code': response.status_code,
                 'message': response.text,
                 'success': False,
-                'date': datetime.now()
+                'date': timezone.now()
 
             }
 
