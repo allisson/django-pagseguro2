@@ -17,3 +17,9 @@ script:
   coverage run --source=pagseguro testapp/manage.py test pagseguro
 after_success:
   coveralls
+matrix:
+  exclude:
+    - python: "3.5"
+      env:
+        - DJANGO_VERSION=1.6.11
+        - DJANGO_VERSION=1.7.11
