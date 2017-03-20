@@ -4,10 +4,8 @@ python:
   - "3.4"
   - "3.5"
 env:
-  - DJANGO_VERSION=1.6.11
-  - DJANGO_VERSION=1.7.11
-  - DJANGO_VERSION=1.8.14
-  - DJANGO_VERSION=1.9.9
+  - DJANGO_VERSION=1.8
+  - DJANGO_VERSION=1.9
   - DJANGO_VERSION=1.10
 install:
   - pip install -q Django==$DJANGO_VERSION
@@ -17,9 +15,3 @@ script:
   coverage run --source=pagseguro testapp/manage.py test pagseguro
 after_success:
   coveralls
-matrix:
-  exclude:
-  - python: "3.5"
-    env: DJANGO_VERSION=1.6.11
-  - python: "3.5"
-    env: DJANGO_VERSION=1.7.11

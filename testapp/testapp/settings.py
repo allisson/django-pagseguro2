@@ -121,13 +121,6 @@ INSTALLED_APPS = (
     'pagseguro',
 )
 
-import django
-if django.VERSION < (1, 7, 0):
-    SOUTH_MIGRATION_MODULES = {
-        'pagseguro': 'pagseguro.south_migrations',
-    }
-    INSTALLED_APPS += ('south', )
-
 # =============================================================================
 # Load settings_local.py if exists
 # =============================================================================
