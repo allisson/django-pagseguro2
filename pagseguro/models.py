@@ -114,6 +114,7 @@ class TransactionHistory(models.Model):
 
     transaction = models.ForeignKey(
         Transaction,
+        on_delete=models.CASCADE,
         verbose_name='Transação'
     )
 
