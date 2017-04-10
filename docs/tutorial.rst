@@ -27,12 +27,6 @@ Adicione o app pagseguro no INSTALLED_APPS::
         'pagseguro',
     )
 
-O django-pagseguro2 suporta as migrações do django 1.7, caso você esteja usando o South, adicione a seguinte configuração no seu settings.py::
-
-    SOUTH_MIGRATION_MODULES = {
-        'pagseguro': 'pagseguro.south_migrations',
-    }
-
 Adicione as configurações no settings.py::
 
     PAGSEGURO_EMAIL = 'fulano@cicrano.com'

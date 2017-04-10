@@ -1,3 +1,2 @@
 coverage==3.7.1
 coveralls>=0.4.2
-South>=1.0.1
