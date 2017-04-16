@@ -65,6 +65,13 @@ class PagSeguroApi(object):
 
         self.params = {}
         self.items = []
+        self.extra_amount = 0
+
+    def add_extra_amount(self, amount):
+        self.extra_amount = amount
+
+    def clear_extra_amount(self, amount):
+        self.extra_amount = 0
 
     def add_item(self, item):
         self.items.append(item)
@@ -77,6 +84,9 @@ class PagSeguroApi(object):
 
     def build_params(self):
         self.params.update(self.base_params)
+
+        if self.extra_amount:
+            self.params['extraAmount'] = self.extra_amount
 
         for index, item in enumerate(self.items):
             count = index + 1
