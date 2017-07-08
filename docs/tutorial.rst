@@ -203,9 +203,9 @@ Para mais informaçãos consultar a `api oficial do pagseguro <http://download.u
 
 Agora, vamos **realizar o checkout transparent**. Primeiramente, importe a PagSeguroApiTransparent e o PagSeguroItem::
 
-    >>> from pagseguro.api import PagSeguroApiTransparent, PagseguroItem
+    >>> from pagseguro.api import PagSeguroApiTransparent, PagSeguroItem
     >>> # inicializando a api
-    >>> api = PagseguroApiTransparent()
+    >>> api = PagSeguroApiTransparent()
 
 Adicione o item::
 
