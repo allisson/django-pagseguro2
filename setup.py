@@ -14,6 +14,11 @@ requires = [
     'xmltodict'
 ]
 
+tests_require = [
+    'coverage==3.7.1',
+    'coveralls>=0.4.2',
+]
+
 setup(
     name='django-pagseguro2',
     version=version,
@@ -27,6 +32,9 @@ setup(
     include_package_data=True,
     zip_safe=False,
     install_requires=requires,
+    extras_require={
+        'tests': tests_require,
+    },
     classifiers=[
         'Framework :: Django',
         'Intended Audience :: Developers',
