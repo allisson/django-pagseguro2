@@ -25,4 +25,48 @@ Integração da API v2 do PagSeguro com o Django.
         :target: https://pypi.python.org/pypi/django-pagseguro2
         :alt: Supported Python versions
 
+
+Instalação e Configuração
+-------------------------
+
+Para informações sobre instalação e configuração, acesse:
+
 - `Documentação <http://django-pagseguro-2.readthedocs.org/>`_
+
+
+Contribuindo
+------------
+
+Para contribuir com o projeto, siga os seguintes passos:
+
+#. Clone o repositório ::
+
+    git clone https://github.com/allisson/django-pagseguro2
+
+#. Entre no diretório ::
+
+    cd django-pagseguro2
+
+#. Crie um `virtualenv <http://virtualenvwrapper.readthedocs.org/en/latest/install.html>`_ ::
+
+    mkvirtualenv django-pagseguro2
+
+#. Instale as dependências ::
+
+    make setup
+
+#. Crie um super-usuário ::
+
+    python testapp/manage.py createsuperuser
+
+#. Execute o servidor ::
+
+    make run
+
+#. Abra a área administrativa do Django no navegador ::
+
+    http://localhost:8000/admin
+
+#. Para executar os testes ::
+
+    make test
