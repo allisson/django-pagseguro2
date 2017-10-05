@@ -15,7 +15,7 @@ requires = [
 ]
 
 tests_require = [
-    'coverage==3.7.1',
+    'coverage',
     'coveralls>=0.4.2',
 ]
 
