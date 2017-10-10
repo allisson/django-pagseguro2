@@ -100,6 +100,7 @@ TEMPLATES = [
 ]
 
 MIDDLEWARE_CLASSES = (
+    'corsheaders.middleware.CorsMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
@@ -120,8 +121,18 @@ INSTALLED_APPS = (
     'django.contrib.sessions',
     'django.contrib.staticfiles',
     'django.contrib.admin',
+    'corsheaders',
     'pagseguro',
 )
+
+CORS_ORIGIN_WHITELIST = (
+    'google.com',
+    'hostname.example.com',
+    'localhost:8000',
+    '127.0.0.1:9000',
+    'sandbox.pagseguro.uol.com.br',
+)
+
 
 # =============================================================================
 # Load settings_local.py if exists
