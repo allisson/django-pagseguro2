@@ -1,8 +1,11 @@
 # -*- coding: utf-8 -*-
 from django.test import TestCase
-from django.core.urlresolvers import reverse
+try:
+    from django.urls import reverse
+except ImportError:
+    from django.core.urlresolvers import reverse
 
-import httpretty
+import responses
 
 from pagseguro.settings import NOTIFICATION_URL, CHECKOUT_URL
 from pagseguro.api import PagSeguroItem, PagSeguroApi
@@ -84,7 +87,7 @@ class PagSeguroSignalsTest(TestCase):
             'notificationType': 'transaction'
         }
 
-    @httpretty.activate
+    @responses.activate
     def test_checkout_realizado(self):
         from pagseguro.signals import checkout_realizado
 
@@ -101,8 +104,8 @@ class PagSeguroSignalsTest(TestCase):
             )
 
         # mock requests
-        httpretty.register_uri(
-            httpretty.POST,
+        responses.add(
+            responses.POST,
             CHECKOUT_URL,
             body=checkout_response_xml,
             status=200,
@@ -125,7 +128,7 @@ class PagSeguroSignalsTest(TestCase):
         # load notification
         pagseguro_api.checkout()
 
-    @httpretty.activate
+    @responses.activate
     def test_checkout_realizado_com_sucesso(self):
         from pagseguro.signals import checkout_realizado_com_sucesso
 
@@ -142,8 +145,8 @@ class PagSeguroSignalsTest(TestCase):
             )
 
         # mock requests
-        httpretty.register_uri(
-            httpretty.POST,
+        responses.add(
+            responses.POST,
             CHECKOUT_URL,
             body=checkout_response_xml,
             status=200,
@@ -166,7 +169,7 @@ class PagSeguroSignalsTest(TestCase):
         # load notification
         pagseguro_api.checkout()
 
-    @httpretty.activate
+    @responses.activate
     def test_checkout_realizado_com_erro(self):
         from pagseguro.signals import checkout_realizado_com_erro
 
@@ -183,8 +186,8 @@ class PagSeguroSignalsTest(TestCase):
             )
 
         # mock requests
-        httpretty.register_uri(
-            httpretty.POST,
+        responses.add(
+            responses.POST,
             CHECKOUT_URL,
             body='Unauthorized',
             status=401,
@@ -207,7 +210,7 @@ class PagSeguroSignalsTest(TestCase):
         # load notification
         pagseguro_api.checkout()
 
-    @httpretty.activate
+    @responses.activate
     def test_notificacao_recebida(self):
         from pagseguro.signals import notificacao_recebida
 
@@ -218,8 +221,8 @@ class PagSeguroSignalsTest(TestCase):
             )
 
         # mock requests
-        httpretty.register_uri(
-            httpretty.GET,
+        responses.add(
+            responses.GET,
             NOTIFICATION_URL + '/{0}'.format(self.notificationCode),
             body=notification_response_xml,
             status=200,
@@ -232,7 +235,7 @@ class PagSeguroSignalsTest(TestCase):
         response = self.client.post(self.url, self.post_params)
         self.assertEqual(response.status_code, 200)
 
-    @httpretty.activate
+    @responses.activate
     def test_notificacao_status_aguardando(self):
         from pagseguro.signals import notificacao_status_aguardando
 
@@ -243,8 +246,8 @@ class PagSeguroSignalsTest(TestCase):
             )
 
         # mock requests
-        httpretty.register_uri(
-            httpretty.GET,
+        responses.add(
+            responses.GET,
             NOTIFICATION_URL + '/{0}'.format(self.notificationCode),
             body=notification_response_xml,
             status=200,
@@ -257,7 +260,7 @@ class PagSeguroSignalsTest(TestCase):
         response = self.client.post(self.url, self.post_params)
         self.assertEqual(response.status_code, 200)
 
-    @httpretty.activate
+    @responses.activate
     def test_notificacao_status_em_analise(self):
         from pagseguro.signals import notificacao_status_em_analise
 
@@ -268,8 +271,8 @@ class PagSeguroSignalsTest(TestCase):
             )
 
         # mock requests
-        httpretty.register_uri(
-            httpretty.GET,
+        responses.add(
+            responses.GET,
             NOTIFICATION_URL + '/{0}'.format(self.notificationCode),
             body=notification_response_xml.replace(
                 '<status>1</status>', '<status>2</status>'
@@ -284,7 +287,7 @@ class PagSeguroSignalsTest(TestCase):
         response = self.client.post(self.url, self.post_params)
         self.assertEqual(response.status_code, 200)
 
-    @httpretty.activate
+    @responses.activate
     def test_notificacao_status_pago(self):
         from pagseguro.signals import notificacao_status_pago
 
@@ -295,8 +298,8 @@ class PagSeguroSignalsTest(TestCase):
             )
 
         # mock requests
-        httpretty.register_uri(
-            httpretty.GET,
+        responses.add(
+            responses.GET,
             NOTIFICATION_URL + '/{0}'.format(self.notificationCode),
             body=notification_response_xml.replace(
                 '<status>1</status>', '<status>3</status>'
@@ -311,7 +314,7 @@ class PagSeguroSignalsTest(TestCase):
         response = self.client.post(self.url, self.post_params)
         self.assertEqual(response.status_code, 200)
 
-    @httpretty.activate
+    @responses.activate
     def test_notificacao_status_disponivel(self):
         from pagseguro.signals import notificacao_status_disponivel
 
@@ -322,8 +325,8 @@ class PagSeguroSignalsTest(TestCase):
             )
 
         # mock requests
-        httpretty.register_uri(
-            httpretty.GET,
+        responses.add(
+            responses.GET,
             NOTIFICATION_URL + '/{0}'.format(self.notificationCode),
             body=notification_response_xml.replace(
                 '<status>1</status>', '<status>4</status>'
@@ -338,7 +341,7 @@ class PagSeguroSignalsTest(TestCase):
         response = self.client.post(self.url, self.post_params)
         self.assertEqual(response.status_code, 200)
 
-    @httpretty.activate
+    @responses.activate
     def test_notificacao_status_em_disputa(self):
         from pagseguro.signals import notificacao_status_em_disputa
 
@@ -349,8 +352,8 @@ class PagSeguroSignalsTest(TestCase):
             )
 
         # mock requests
-        httpretty.register_uri(
-            httpretty.GET,
+        responses.add(
+            responses.GET,
             NOTIFICATION_URL + '/{0}'.format(self.notificationCode),
             body=notification_response_xml.replace(
                 '<status>1</status>', '<status>5</status>'
@@ -365,7 +368,7 @@ class PagSeguroSignalsTest(TestCase):
         response = self.client.post(self.url, self.post_params)
         self.assertEqual(response.status_code, 200)
 
-    @httpretty.activate
+    @responses.activate
     def test_notificacao_status_devolvido(self):
         from pagseguro.signals import notificacao_status_devolvido
 
@@ -376,8 +379,8 @@ class PagSeguroSignalsTest(TestCase):
             )
 
         # mock requests
-        httpretty.register_uri(
-            httpretty.GET,
+        responses.add(
+            responses.GET,
             NOTIFICATION_URL + '/{0}'.format(self.notificationCode),
             body=notification_response_xml.replace(
                 '<status>1</status>', '<status>6</status>'
@@ -392,7 +395,7 @@ class PagSeguroSignalsTest(TestCase):
         response = self.client.post(self.url, self.post_params)
         self.assertEqual(response.status_code, 200)
 
-    @httpretty.activate
+    @responses.activate
     def test_notificacao_status_cancelado(self):
         from pagseguro.signals import notificacao_status_cancelado
 
@@ -403,8 +406,8 @@ class PagSeguroSignalsTest(TestCase):
             )
 
         # mock requests
-        httpretty.register_uri(
-            httpretty.GET,
+        responses.add(
+            responses.GET,
             NOTIFICATION_URL + '/{0}'.format(self.notificationCode),
             body=notification_response_xml.replace(
                 '<status>1</status>', '<status>7</status>'
@@ -419,11 +422,11 @@ class PagSeguroSignalsTest(TestCase):
         response = self.client.post(self.url, self.post_params)
         self.assertEqual(response.status_code, 200)
 
-    @httpretty.activate
+    @responses.activate
     def test_update_transaction(self):
         # mock requests
-        httpretty.register_uri(
-            httpretty.GET,
+        responses.add(
+            responses.GET,
             NOTIFICATION_URL + '/{0}'.format(self.notificationCode),
             body=notification_response_xml,
             status=200,
@@ -461,9 +464,9 @@ class PagSeguroSignalsTest(TestCase):
         self.assertEqual(transaction.status, 'aguardando')
 
         # mock requests
-        httpretty.reset()
-        httpretty.register_uri(
-            httpretty.GET,
+        responses.reset()
+        responses.add(
+            responses.GET,
             NOTIFICATION_URL + '/{0}'.format(self.notificationCode),
             body=notification_response_xml.replace(
                 '<status>1</status>', '<status>2</status>'
@@ -491,9 +494,9 @@ class PagSeguroSignalsTest(TestCase):
         self.assertEqual(transaction.status, 'em_analise')
 
         # mock requests
-        httpretty.reset()
-        httpretty.register_uri(
-            httpretty.GET,
+        responses.reset()
+        responses.add(
+            responses.GET,
             NOTIFICATION_URL + '/{0}'.format(self.notificationCode),
             body=notification_response_xml.replace(
                 '<status>1</status>', '<status>3</status>'
@@ -527,9 +530,9 @@ class PagSeguroSignalsTest(TestCase):
         self.assertEqual(transaction.status, 'pago')
 
         # mock requests
-        httpretty.reset()
-        httpretty.register_uri(
-            httpretty.GET,
+        responses.reset()
+        responses.add(
+            responses.GET,
             NOTIFICATION_URL + '/{0}'.format(self.notificationCode),
             body=notification_response_xml.replace(
                 '<status>1</status>', '<status>4</status>'
@@ -569,9 +572,9 @@ class PagSeguroSignalsTest(TestCase):
         self.assertEqual(transaction.status, 'disponivel')
 
         # mock requests
-        httpretty.reset()
-        httpretty.register_uri(
-            httpretty.GET,
+        responses.reset()
+        responses.add(
+            responses.GET,
             NOTIFICATION_URL + '/{0}'.format(self.notificationCode),
             body=notification_response_xml.replace(
                 '<status>1</status>', '<status>5</status>'
@@ -617,9 +620,9 @@ class PagSeguroSignalsTest(TestCase):
         self.assertEqual(transaction.status, 'em_disputa')
 
         # mock requests
-        httpretty.reset()
-        httpretty.register_uri(
-            httpretty.GET,
+        responses.reset()
+        responses.add(
+            responses.GET,
             NOTIFICATION_URL + '/{0}'.format(self.notificationCode),
             body=notification_response_xml.replace(
                 '<status>1</status>', '<status>6</status>'
@@ -671,9 +674,9 @@ class PagSeguroSignalsTest(TestCase):
         self.assertEqual(transaction.status, 'devolvido')
 
         # mock requests
-        httpretty.reset()
-        httpretty.register_uri(
-            httpretty.GET,
+        responses.reset()
+        responses.add(
+            responses.GET,
             NOTIFICATION_URL + '/{0}'.format(self.notificationCode),
             body=notification_response_xml.replace(
                 '<status>1</status>', '<status>7</status>'

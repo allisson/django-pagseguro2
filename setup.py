@@ -9,7 +9,6 @@ requires = [
     'Django>=1.8',
     'six',
     'requests',
-    'httpretty<0.8.7',
     'python-dateutil',
     'xmltodict'
 ]

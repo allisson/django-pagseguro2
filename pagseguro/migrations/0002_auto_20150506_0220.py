@@ -68,7 +68,7 @@ class Migration(migrations.Migration):
         migrations.AlterField(
             model_name='transactionhistory',
             name='transaction',
-            field=models.ForeignKey(verbose_name='Transa\xe7\xe3o', to='pagseguro.Transaction'),
+            field=models.ForeignKey(verbose_name='Transa\xe7\xe3o', to='pagseguro.Transaction', on_delete=models.CASCADE),
             preserve_default=True,
         ),
     ]

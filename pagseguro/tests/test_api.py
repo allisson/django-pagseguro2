@@ -1,9 +1,9 @@
 # -*- coding: utf-8 -*-
-from django.test import TestCase
-
 from decimal import Decimal
-import httpretty
+
+import responses
 from dateutil.parser import parse
+from django.test import TestCase
 
 from pagseguro.api import PagSeguroItem, PagSeguroApi, PagSeguroApiTransparent
 from pagseguro.settings import (
@@ -322,15 +322,15 @@ class PagSeguroApiTest(TestCase):
         self.assertNotIn(self.item2, self.pagseguro_api.get_items())
         self.assertNotIn(self.item3, self.pagseguro_api.get_items())
 
-    @httpretty.activate
+    @responses.activate
     def test_invalid_checkout(self):
         self.pagseguro_api.add_item(self.item1)
         self.pagseguro_api.add_item(self.item2)
         self.pagseguro_api.add_item(self.item3)
 
         # mock requests
-        httpretty.register_uri(
-            httpretty.POST,
+        responses.add(
+            responses.POST,
             CHECKOUT_URL,
             body='Unauthorized',
             status=401,
@@ -341,15 +341,15 @@ class PagSeguroApiTest(TestCase):
         self.assertEqual(data['message'], 'Unauthorized')
         self.assertEqual(data['status_code'], 401)
 
-    @httpretty.activate
+    @responses.activate
     def test_valid_checkout(self):
         self.pagseguro_api.add_item(self.item1)
         self.pagseguro_api.add_item(self.item2)
         self.pagseguro_api.add_item(self.item3)
 
         # mock requests
-        httpretty.register_uri(
-            httpretty.POST,
+        responses.add(
+            responses.POST,
             CHECKOUT_URL,
             body=checkout_response_xml,
             status=200,
@@ -365,11 +365,11 @@ class PagSeguroApiTest(TestCase):
             '{0}?code={1}'.format(PAYMENT_URL, data['code'])
         )
 
-    @httpretty.activate
+    @responses.activate
     def test_get_invalid_notification(self):
         # mock requests
-        httpretty.register_uri(
-            httpretty.GET,
+        responses.add(
+            responses.GET,
             NOTIFICATION_URL + '/{0}'.format(
                 'A5182C-C9EF48EF48D2-1FF4AF6FAC82-EB2948'
             ),
@@ -383,11 +383,11 @@ class PagSeguroApiTest(TestCase):
         self.assertEqual(response.status_code, 401)
         self.assertEqual(response.text, 'Unauthorized')
 
-    @httpretty.activate
+    @responses.activate
     def test_get_valid_notification(self):
         # mock requests
-        httpretty.register_uri(
-            httpretty.GET,
+        responses.add(
+            responses.GET,
             NOTIFICATION_URL + '/{0}'.format(
                 'A5182C-C9EF48EF48D2-1FF4AF6FAC82-EB2948'
             ),
@@ -400,11 +400,11 @@ class PagSeguroApiTest(TestCase):
         )
         self.assertEqual(response.status_code, 200)
 
-    @httpretty.activate
+    @responses.activate
     def test_get_invalid_transaction(self):
         # mock requests
-        httpretty.register_uri(
-            httpretty.GET,
+        responses.add(
+            responses.GET,
             TRANSACTION_URL + '/{0}'.format(
                 '9E884542-81B3-4419-9A75-BCC6FB495EF1'
             ),
@@ -418,11 +418,11 @@ class PagSeguroApiTest(TestCase):
         self.assertEqual(data['status_code'], 401)
         self.assertEqual(data['message'], 'Unauthorized')
 
-    @httpretty.activate
+    @responses.activate
     def test_get_valid_transaction(self):
         # mock requests
-        httpretty.register_uri(
-            httpretty.GET,
+        responses.add(
+            responses.GET,
             TRANSACTION_URL + '/{0}'.format(
                 '9E884542-81B3-4419-9A75-BCC6FB495EF1'
             ),
@@ -588,11 +588,11 @@ class PagSeguroApiTransparentTest(TestCase):
         self.pagseguro_api.set_creditcard_token(token)
         self.assertEqual(self.pagseguro_api.params['creditCardToken'], token)
 
-    @httpretty.activate
+    @responses.activate
     def test_valid_get_session_id(self):
         # mock requests
-        httpretty.register_uri(
-            httpretty.POST,
+        responses.add(
+            responses.POST,
             SESSION_URL,
             body=session_response_xml,
             status=200,
@@ -604,11 +604,11 @@ class PagSeguroApiTransparentTest(TestCase):
             '620f99e348c24f07877c927b353e49d3'
         )
 
-    @httpretty.activate
+    @responses.activate
     def test_invalid_get_session_id(self):
         # mock requests
-        httpretty.register_uri(
-            httpretty.POST,
+        responses.add(
+            responses.POST,
             SESSION_URL,
             body='Unauthorized',
             status=401,
@@ -617,7 +617,7 @@ class PagSeguroApiTransparentTest(TestCase):
         self.assertEqual(data['status_code'], 401)
         self.assertEqual(data['message'], 'Unauthorized')
 
-    @httpretty.activate
+    @responses.activate
     def test_valid_checkout(self):
         sender = {
             'name': 'Jose Comprador',
@@ -645,8 +645,8 @@ class PagSeguroApiTransparentTest(TestCase):
         self.pagseguro_api.set_sender(**sender)
         self.pagseguro_api.set_shipping(**shipping)
         # mock requests
-        httpretty.register_uri(
-            httpretty.POST,
+        responses.add(
+            responses.POST,
             TRANSACTION_URL,
             body=transparent_response_xml,
             status=200,
@@ -657,11 +657,11 @@ class PagSeguroApiTransparentTest(TestCase):
         self.assertEqual(data['code'], '9E884542-81B3-4419-9A75-BCC6FB495EF1')
         self.assertEqual(data['date'], parse('2011-02-05T15:46:12.000-02:00'))
 
-    @httpretty.activate
+    @responses.activate
     def test_invalid_checkout(self):
         # mock requests
-        httpretty.register_uri(
-            httpretty.POST,
+        responses.add(
+            responses.POST,
             TRANSACTION_URL,
             body='Unauthorized',
             status=401,

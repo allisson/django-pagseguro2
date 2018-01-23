@@ -1,8 +1,11 @@
 # -*- coding: utf-8 -*-
 from django.test import TestCase
-from django.core.urlresolvers import reverse
+try:
+    from django.urls import reverse
+except ImportError:
+    from django.core.urlresolvers import reverse
 
-import httpretty
+import responses
 import six
 
 from pagseguro.settings import NOTIFICATION_URL
@@ -92,11 +95,11 @@ class ReceiveNotificationViewTest(TestCase):
         )
         self.assertEqual(response.status_code, 400)
 
-    @httpretty.activate
+    @responses.activate
     def test_render_invalid_notification(self):
         # mock requests
-        httpretty.register_uri(
-            httpretty.GET,
+        responses.add(
+            responses.GET,
             NOTIFICATION_URL + '/{0}'.format(
                 'A5182C-C9EF48EF48D2-1FF4AF6FAC82-EB2948'
             ),
@@ -118,11 +121,11 @@ class ReceiveNotificationViewTest(TestCase):
                 six.b('Notificação inválida.')
             )
 
-    @httpretty.activate
+    @responses.activate
     def test_render(self):
         # mock requests
-        httpretty.register_uri(
-            httpretty.GET,
+        responses.add(
+            responses.GET,
             NOTIFICATION_URL + '/{0}'.format(
                 'A5182C-C9EF48EF48D2-1FF4AF6FAC82-EB2948'
             ),
