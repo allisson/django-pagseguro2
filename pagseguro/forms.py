@@ -6,27 +6,22 @@ from decimal import Decimal
 
 
 class PagSeguroItemForm(forms.Form):
-
     id = forms.CharField(
         max_length=100
     )
-
     description = forms.CharField(
         max_length=100
     )
-
     amount = forms.DecimalField(
         max_digits=9,
         max_value=Decimal('9999999.00'),
         min_value=Decimal('0.01'),
         decimal_places=2
     )
-
     quantity = forms.IntegerField(
         min_value=1,
         max_value=999
     )
-
     shipping_cost = forms.DecimalField(
         max_digits=9,
         max_value=Decimal('9999999.00'),
@@ -34,7 +29,6 @@ class PagSeguroItemForm(forms.Form):
         decimal_places=2,
         required=False
     )
-
     weight = forms.IntegerField(
         min_value=1,
         max_value=30000,

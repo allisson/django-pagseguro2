@@ -23,26 +23,22 @@ TRANSACTION_STATUS_CHOICES = (
 
 @python_2_unicode_compatible
 class Checkout(models.Model):
-
     code = models.CharField(
         'código',
         max_length=100,
         blank=True,
         help_text='Código gerado para redirecionamento.'
     )
-
     date = models.DateTimeField(
         'Data',
         help_text='Data em que o checkout foi realizado.'
     )
-
     success = models.BooleanField(
         'Sucesso',
         db_index=True,
         help_text='O checkout foi feito com sucesso?',
         default=False
     )
-
     message = models.TextField(
         'Mensagem de erro',
         blank=True,
@@ -60,7 +56,6 @@ class Checkout(models.Model):
 
 @python_2_unicode_compatible
 class Transaction(models.Model):
-
     code = models.CharField(
         'código',
         max_length=100,
@@ -68,7 +63,6 @@ class Transaction(models.Model):
         db_index=True,
         help_text='O código da transação.'
     )
-
     reference = models.CharField(
         'referência',
         max_length=200,
@@ -76,7 +70,6 @@ class Transaction(models.Model):
         blank=True,
         help_text='A referência passada na transação.'
     )
-
     status = models.CharField(
         'Status',
         max_length=20,
@@ -84,17 +77,14 @@ class Transaction(models.Model):
         choices=TRANSACTION_STATUS_CHOICES,
         help_text='Status atual da transação.'
     )
-
     date = models.DateTimeField(
         'Data',
         help_text='Data em que a transação foi criada.'
     )
-
     last_event_date = models.DateTimeField(
         'Última alteração',
         help_text='Data da última alteração na transação.'
     )
-
     content = models.TextField(
         'Transação',
         help_text='Transação no formato json.'
@@ -111,20 +101,17 @@ class Transaction(models.Model):
 
 @python_2_unicode_compatible
 class TransactionHistory(models.Model):
-
     transaction = models.ForeignKey(
         Transaction,
         on_delete=models.CASCADE,
         verbose_name='Transação'
     )
-
     status = models.CharField(
         'Status',
         max_length=20,
         choices=TRANSACTION_STATUS_CHOICES,
         help_text='Status da transação.'
     )
-
     date = models.DateTimeField(
         'Data'
     )

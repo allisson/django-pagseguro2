@@ -17,25 +17,29 @@ from pagseguro.forms import PagSeguroItemForm
 
 
 class PagSeguroItem(object):
-
-    form_class = PagSeguroItemForm
-    id = None
-    description = None
-    amount = None
-    quantity = None
-    shipping_cost = None
-    weight = None
-
     def __init__(self, id, description, amount, quantity, shipping_cost=None,
-                 weight=None):
-        form_data = {
-            'id': id,
-            'description': description,
-            'amount': amount,
-            'quantity': quantity,
-            'shipping_cost': shipping_cost,
-            'weight': weight
+                 weight=None, form_class=None):
+        self.id = id
+        self.description = description
+        self.amount = amount
+        self.quantity = quantity
+        self.shipping_cost = shipping_cost
+        self.weight = weight
+        self.form_class = form_class or PagSeguroItemForm
+        self.validate()
+
+    def get_data(self):
+        return {
+            'id': self.id,
+            'description': self.description,
+            'amount': self.amount,
+            'quantity': self.quantity,
+            'shipping_cost': self.shipping_cost,
+            'weight': self.weight
         }
+
+    def validate(self):
+        form_data = self.get_data()
         form = self.form_class(form_data)
 
         if form.is_valid():
@@ -45,24 +49,27 @@ class PagSeguroItem(object):
             raise Exception(form.errors.items())
 
     def __repr__(self):
-        return '<PagSeguroItem: {0}>'.format(self.description)
+        return '<PagSeguroItem: {!r}>'.format(self.get_data())
 
 
 class PagSeguroApi(object):
-
-    checkout_url = CHECKOUT_URL
-    redirect_url = PAYMENT_URL
-    notification_url = NOTIFICATION_URL
-    transaction_url = TRANSACTION_URL
-
-    def __init__(self, **kwargs):
+    def __init__(self, checkout_url=None, redirect_url=None,
+                 notification_url=None, transaction_url=None,
+                 pagseguro_email=None, pagseguro_token=None, currency='BRL',
+                 **kwargs):
+        self.checkout_url = checkout_url or CHECKOUT_URL
+        self.redirect_url = redirect_url or PAYMENT_URL
+        self.notification_url = notification_url or NOTIFICATION_URL
+        self.transaction_url = transaction_url or TRANSACTION_URL
+        self.pagseguro_email = pagseguro_email or PAGSEGURO_EMAIL
+        self.pagseguro_token = pagseguro_token or PAGSEGURO_TOKEN
+        self.currency = currency
         self.base_params = {
-            'email': PAGSEGURO_EMAIL,
-            'token': PAGSEGURO_TOKEN,
-            'currency': 'BRL',
+            'email': self.pagseguro_email,
+            'token': self.pagseguro_token,
+            'currency': self.currency,
         }
         self.base_params.update(kwargs)
-
         self.params = {}
         self.items = []
 
@@ -80,14 +87,14 @@ class PagSeguroApi(object):
 
         for index, item in enumerate(self.items):
             count = index + 1
-            self.params['itemId{0}'.format(count)] = item.id
-            self.params['itemDescription{0}'.format(count)] = item.description
-            self.params['itemAmount{0}'.format(count)] = item.amount
-            self.params['itemQuantity{0}'.format(count)] = item.quantity
+            self.params['itemId{}'.format(count)] = item.id
+            self.params['itemDescription{}'.format(count)] = item.description
+            self.params['itemAmount{}'.format(count)] = item.amount
+            self.params['itemQuantity{}'.format(count)] = item.quantity
             if item.shipping_cost:
-                self.params['itemShippingCost{0}'.format(count)] = item.shipping_cost
+                self.params['itemShippingCost{}'.format(count)] = item.shipping_cost
             if item.weight:
-                self.params['itemWeight{0}'.format(count)] = item.weight
+                self.params['itemWeight{}'.format(count)] = item.weight
 
     def checkout(self):
         self.build_params()
@@ -106,7 +113,7 @@ class PagSeguroApi(object):
                 'code': root['checkout']['code'],
                 'status_code': response.status_code,
                 'date': parse(root['checkout']['date']),
-                'redirect_url': '{0}?code={1}'.format(
+                'redirect_url': '{}?code={}'.format(
                     self.redirect_url, root['checkout']['code']
                 ),
                 'success': True
@@ -133,7 +140,7 @@ class PagSeguroApi(object):
 
     def get_notification(self, notification_id):
         response = requests.get(
-            self.notification_url + '/{0}'.format(notification_id),
+            self.notification_url + '/{}'.format(notification_id),
             params={
                 'email': self.base_params['email'],
                 'token': self.base_params['token']
@@ -158,7 +165,7 @@ class PagSeguroApi(object):
 
     def get_transaction(self, transaction_id):
         response = requests.get(
-            self.transaction_url + '/{0}'.format(transaction_id),
+            self.transaction_url + '/{}'.format(transaction_id),
             params={
                 'email': self.base_params['email'],
                 'token': self.base_params['token']
@@ -187,10 +194,8 @@ class PagSeguroApi(object):
 
 
 class PagSeguroApiTransparent(PagSeguroApi):
-
-    session_url = SESSION_URL
-
-    def __init__(self, **kwargs):
+    def __init__(self, session_url=None, **kwargs):
+        self.session_url = session_url or SESSION_URL
         super(PagSeguroApiTransparent, self).__init__(**kwargs)
         self.base_params['paymentMode'] = 'default'
 
