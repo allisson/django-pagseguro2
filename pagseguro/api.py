@@ -39,8 +39,7 @@ class PagSeguroItem(object):
         }
 
     def validate(self):
-        form_data = self.get_data()
-        form = self.form_class(form_data)
+        form = self.form_class(self.get_data())
 
         if form.is_valid():
             for k, v in form.cleaned_data.items():
