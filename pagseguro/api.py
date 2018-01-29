@@ -206,7 +206,7 @@ class PagSeguroApi(object):
             'transaction_id={}, '
             'data={!r}, '
             'response_status={}'.format(
-                transaction_id, response.text, response.status_code
+                transaction_id, data, response.status_code
             )
         )
         return data
