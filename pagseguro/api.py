@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals
+import logging
 from django.utils import timezone
 import requests
 import xmltodict
@@ -14,6 +15,8 @@ from pagseguro.signals import (
     checkout_realizado_com_sucesso, checkout_realizado_com_erro
 )
 from pagseguro.forms import PagSeguroItemForm
+
+logger = logging.getLogger(__name__)
 
 
 class PagSeguroItem(object):
@@ -135,6 +138,7 @@ class PagSeguroApi(object):
             sender=self, data=data
         )
 
+        logger.debug('operation=api_checkout, data={!r}'.format(data))
         return data
 
     def get_notification(self, notification_id):
@@ -160,6 +164,14 @@ class PagSeguroApi(object):
                     sender=self, transaction=transaction
                 )
 
+        logger.debug(
+            'operation=api_get_notification, '
+            'notification_id={}, '
+            'response_body={}, '
+            'response_status={}'.format(
+                notification_id, response.text, response.status_code
+            )
+        )
         return response
 
     def get_transaction(self, transaction_id):
@@ -189,6 +201,14 @@ class PagSeguroApi(object):
                 'date': timezone.now()
             }
 
+        logger.debug(
+            'operation=api_get_transaction, '
+            'transaction_id={}, '
+            'data={!r}, '
+            'response_status={}'.format(
+                transaction_id, response.text, response.status_code
+            )
+        )
         return data
 
 
@@ -302,6 +322,10 @@ class PagSeguroApiTransparent(PagSeguroApi):
             sender=self, data=data
         )
 
+        logger.debug(
+            'operation=transparent_api_checkout, '
+            'data={!r}'.format(data)
+        )
         return data
 
     def get_session_id(self):
@@ -332,4 +356,8 @@ class PagSeguroApiTransparent(PagSeguroApi):
 
             }
 
+        logger.debug(
+            'operation=transparent_api_get_session_id, '
+            'data={!r}'.format(data)
+        )
         return data

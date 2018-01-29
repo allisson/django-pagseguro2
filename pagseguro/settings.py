@@ -27,5 +27,7 @@ TRANSACTION_STATUS = {
     '4': 'disponivel',
     '5': 'em_disputa',
     '6': 'devolvido',
-    '7': 'cancelado'
+    '7': 'cancelado',
+    '8': 'debitado',
+    '9': 'retencao_temporaria',
 }
