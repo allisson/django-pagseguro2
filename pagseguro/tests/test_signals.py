@@ -423,6 +423,60 @@ class PagSeguroSignalsTest(TestCase):
         self.assertEqual(response.status_code, 200)
 
     @responses.activate
+    def test_notificacao_status_debitado(self):
+        from pagseguro.signals import notificacao_status_debitado
+
+        # load signal function
+        def load_signal(sender, transaction, **kwargs):
+            self.assertEqual(
+                transaction['status'], '8'
+            )
+
+        # mock requests
+        responses.add(
+            responses.GET,
+            NOTIFICATION_URL + '/{0}'.format(self.notificationCode),
+            body=notification_response_xml.replace(
+                '<status>1</status>', '<status>8</status>'
+            ),
+            status=200,
+        )
+
+        # connect to signal
+        notificacao_status_debitado.connect(load_signal)
+
+        # load notification
+        response = self.client.post(self.url, self.post_params)
+        self.assertEqual(response.status_code, 200)
+
+    @responses.activate
+    def test_notificacao_status_retencao_temporaria(self):
+        from pagseguro.signals import notificacao_status_retencao_temporaria
+
+        # load signal function
+        def load_signal(sender, transaction, **kwargs):
+            self.assertEqual(
+                transaction['status'], '9'
+            )
+
+        # mock requests
+        responses.add(
+            responses.GET,
+            NOTIFICATION_URL + '/{0}'.format(self.notificationCode),
+            body=notification_response_xml.replace(
+                '<status>1</status>', '<status>9</status>'
+            ),
+            status=200,
+        )
+
+        # connect to signal
+        notificacao_status_retencao_temporaria.connect(load_signal)
+
+        # load notification
+        response = self.client.post(self.url, self.post_params)
+        self.assertEqual(response.status_code, 200)
+
+    @responses.activate
     def test_update_transaction(self):
         # mock requests
         responses.add(

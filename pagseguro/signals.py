@@ -20,6 +20,8 @@ notificacao_status_disponivel = Signal(providing_args=['transaction'])
 notificacao_status_em_disputa = Signal(providing_args=['transaction'])
 notificacao_status_devolvido = Signal(providing_args=['transaction'])
 notificacao_status_cancelado = Signal(providing_args=['transaction'])
+notificacao_status_debitado = Signal(providing_args=['transaction'])
+notificacao_status_retencao_temporaria = Signal(providing_args=['transaction'])
 
 
 NOTIFICATION_STATUS = {
@@ -29,7 +31,9 @@ NOTIFICATION_STATUS = {
     '4': notificacao_status_disponivel,
     '5': notificacao_status_em_disputa,
     '6': notificacao_status_devolvido,
-    '7': notificacao_status_cancelado
+    '7': notificacao_status_cancelado,
+    '8': notificacao_status_debitado,
+    '9': notificacao_status_retencao_temporaria,
 }
 
 
