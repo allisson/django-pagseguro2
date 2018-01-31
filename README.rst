@@ -22,3 +22,4 @@ Integração da API v2 do PagSeguro com o Django.
         :alt: Supported Python versions
 
 - `Documentação <http://django-pagseguro-2.readthedocs.org/>`_
+- `Aplicação de exemplo <https://github.com/allisson/django-pagseguro2-example/>`_
