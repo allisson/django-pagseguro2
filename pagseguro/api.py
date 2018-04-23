@@ -261,7 +261,7 @@ class PagSeguroApiTransparent(PagSeguroApi):
         self.params['shippingType'] = shipping_type
 
     def set_creditcard_data(self, quantity, value, name, birth_date,
-                            cpf, area_code, phone):
+                            cpf, area_code, phone, no_interest_quantity=None):
         self.params['installmentQuantity'] = quantity
         self.params['installmentValue'] = value
         self.params['creditCardHolderName'] = name
@@ -269,6 +269,8 @@ class PagSeguroApiTransparent(PagSeguroApi):
         self.params['creditCardHolderCPF'] = cpf
         self.params['creditCardHolderAreaCode'] = area_code
         self.params['creditCardHolderPhone'] = phone
+        if no_interest_quantity:
+            self.params['noInterestInstallmentQuantity'] = no_interest_quantity
 
     def set_creditcard_billing_address(self, street, number, district,
                                        postal_code, city, state, country,
