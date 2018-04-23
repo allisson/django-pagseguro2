@@ -234,7 +234,7 @@ Apenas para compras no **débito**::
 Apenas para compras no **cartão de crédito**::
 
     >>> api.set_payment_method('creditcard')
-    >>> data = {'quantity': 5, 'value': 125.22, 'name': 'Jose Comprador', 'birth_date': '27/10/1987', 'cpf': '22111944785', 'area_code': 11, 'phone': 56273440,}
+    >>> data = {'quantity': 5, 'value': 125.22, 'name': 'Jose Comprador', 'birth_date': '27/10/1987', 'cpf': '22111944785', 'area_code': 11, 'phone': 56273440, 'no_interest_quantity': 5}
     >>> api.set_creditcard_data(**data)
     >>> billing_address = {'street': 'Av. Brig. Faria Lima', 'number': 1384, 'district': 'Jardim Paulistano', 'postal_code': '01452002', 'city': 'Sao Paulo', 'state': 'SP', 'country': 'BRA',}
     >>> api.set_creditcard_billing_address(**billing_address)

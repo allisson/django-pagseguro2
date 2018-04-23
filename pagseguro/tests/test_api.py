@@ -552,11 +552,34 @@ class PagSeguroApiTransparentTest(TestCase):
             'cpf': '22111944785',
             'area_code': 11,
             'phone': 56273440,
+            'no_interest_quantity': 5,
         }
         self.pagseguro_api.set_creditcard_data(**data)
         params = self.pagseguro_api.params
         self.assertEqual(params['installmentQuantity'], data['quantity'])
         self.assertEqual(params['installmentValue'], data['value'])
+        self.assertEqual(params['noInterestInstallmentQuantity'], data['no_interest_quantity'])
+        self.assertEqual(params['creditCardHolderName'], data['name'])
+        self.assertEqual(params['creditCardHolderBirthDate'], data['birth_date'])
+        self.assertEqual(params['creditCardHolderCPF'], data['cpf'])
+        self.assertEqual(params['creditCardHolderAreaCode'], data['area_code'])
+        self.assertEqual(params['creditCardHolderPhone'], data['phone'])
+
+    def test_set_creditcard_data_without_no_interest_quantity(self):
+        data = {
+            'quantity': 5,
+            'value': 125.22,
+            'name': 'Jose Comprador',
+            'birth_date': '27/10/1987',
+            'cpf': '22111944785',
+            'area_code': 11,
+            'phone': 56273440,
+        }
+        self.pagseguro_api.set_creditcard_data(**data)
+        params = self.pagseguro_api.params
+        self.assertEqual(params['installmentQuantity'], data['quantity'])
+        self.assertEqual(params['installmentValue'], data['value'])
+        self.assertNotIn('noInterestInstallmentQuantity', params)
         self.assertEqual(params['creditCardHolderName'], data['name'])
         self.assertEqual(params['creditCardHolderBirthDate'], data['birth_date'])
         self.assertEqual(params['creditCardHolderCPF'], data['cpf'])
