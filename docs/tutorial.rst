@@ -158,6 +158,7 @@ Vamos iniciar uma sessão de pagamento para conseguir as informações acima.
 Importe a PagSeguroApiTransparent para iniciar uma sessão de pagamento::
 
     >>> from pagseguro.api import PagSeguroApiTransparent
+    >>> pagseguro_api = PagSeguroApiTransparent()
     >>> # pegando a session id
     >>> data = pagseguro_api.get_session_id()
     >>> # o método get_session_id retorna um dicionário que contém uma id válida que será utilizada no Browser para iniciar
