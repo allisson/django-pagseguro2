@@ -15,10 +15,13 @@ def receive_notification(request):
     notification_code = request.POST.get('notificationCode', None)
     notification_type = request.POST.get('notificationType', None)
 
-    if notification_code and notification_type == 'transaction':
-        pagseguro_api = PagSeguroApi()
-        response = pagseguro_api.get_notification(notification_code)
+    notifications_type = ['transaction', 'preApproval']
 
+    if notification_code and notification_type in notifications_type:
+        pagseguro_api = PagSeguroApi()
+        response = pagseguro_api.get_notification(
+            notification_code, notification_type
+        )
         if response.status_code == 200:
             if six.PY2:
                 return HttpResponse(six.b('Notificação recebida com sucesso.'))

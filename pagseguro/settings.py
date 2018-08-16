@@ -13,12 +13,23 @@ if PAGSEGURO_SANDBOX:
     NOTIFICATION_URL = 'https://ws.sandbox.pagseguro.uol.com.br/v2/transactions/notifications'
     TRANSACTION_URL = 'https://ws.sandbox.pagseguro.uol.com.br/v2/transactions'
     SESSION_URL = 'https://ws.sandbox.pagseguro.uol.com.br/v2/sessions/'
+    PRE_APPROVAL_URL = 'https://ws.sandbox.pagseguro.uol.com.br/v2/pre-approvals'
+    PRE_APPROVAL_REQUEST_URL = 'https://ws.sandbox.pagseguro.uol.com.br/v2/pre-approvals/request'
+    PRE_APPROVAL_REDIRECT_URL = 'https://sandbox.pagseguro.uol.com.br/v2/pre-approvals/request.html'
+    PRE_APPROVAL_NOTIFICATION_URL = 'https://ws.sandbox.pagseguro.uol.com.br/v2/pre-approvals/notifications'
+    PRE_APPROVAL_CANCEL_URL = 'https://ws.sandbox.pagseguro.uol.com.br/v2/pre-approvals/cancel'
 else:
     CHECKOUT_URL = 'https://ws.pagseguro.uol.com.br/v2/checkout'
     PAYMENT_URL = 'https://pagseguro.uol.com.br/v2/checkout/payment.html'
     NOTIFICATION_URL = 'https://ws.pagseguro.uol.com.br/v2/transactions/notifications'
     TRANSACTION_URL = 'https://ws.pagseguro.uol.com.br/v2/transactions'
     SESSION_URL = 'https://ws.pagseguro.uol.com.br/v2/sessions/'
+    PRE_APPROVAL_URL = 'https://ws.pagseguro.uol.com.br/v2/pre-approvals'
+    PRE_APPROVAL_REQUEST_URL = 'https://ws.pagseguro.uol.com.br/v2/pre-approvals/request'
+    PRE_APPROVAL_REDIRECT_URL = 'https://ws.pagseguro.uol.com.br/v2/pre-approvals/request.html'
+    PRE_APPROVAL_NOTIFICATION_URL = 'https://ws.pagseguro.uol.com.br/v2/pre-approvals/notifications'
+    PRE_APPROVAL_CANCEL_URL = 'https://ws.pagseguro.uol.com.br/v2/pre-approvals/cancel'
+
 
 TRANSACTION_STATUS = {
     '1': 'aguardando',

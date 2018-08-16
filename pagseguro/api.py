@@ -8,11 +8,16 @@ from dateutil.parser import parse
 
 from pagseguro.settings import (
     PAGSEGURO_EMAIL, PAGSEGURO_TOKEN, CHECKOUT_URL, PAYMENT_URL,
-    NOTIFICATION_URL, TRANSACTION_URL, SESSION_URL
+    NOTIFICATION_URL, TRANSACTION_URL, SESSION_URL, PRE_APPROVAL_URL,
+    PRE_APPROVAL_REQUEST_URL, PRE_APPROVAL_REDIRECT_URL,
+    PRE_APPROVAL_NOTIFICATION_URL, PRE_APPROVAL_CANCEL_URL
 )
 from pagseguro.signals import (
     notificacao_recebida, NOTIFICATION_STATUS, checkout_realizado,
-    checkout_realizado_com_sucesso, checkout_realizado_com_erro
+    checkout_realizado_com_sucesso, checkout_realizado_com_erro,
+    PRE_APPROVAL_NOTIFICATION_STATUS, pre_approval_notification,
+    pre_approval_status_cancelled, pre_approval_create_plan,
+    pre_approval_create_plan_error
 )
 from pagseguro.forms import PagSeguroItemForm
 
@@ -57,12 +62,20 @@ class PagSeguroItem(object):
 class PagSeguroApi(object):
     def __init__(self, checkout_url=None, redirect_url=None,
                  notification_url=None, transaction_url=None,
-                 pagseguro_email=None, pagseguro_token=None, currency='BRL',
+                 pagseguro_email=None, pagseguro_token=None,
+                 pre_approval_url=None, pre_approval_request_url=None,
+                 pre_approval_redirect_url=None, pre_approval_notification_url=None,
+                 pre_approval_cancel_url=None, currency='BRL',
                  **kwargs):
         self.checkout_url = checkout_url or CHECKOUT_URL
         self.redirect_url = redirect_url or PAYMENT_URL
         self.notification_url = notification_url or NOTIFICATION_URL
         self.transaction_url = transaction_url or TRANSACTION_URL
+        self.pre_approval_url = pre_approval_url or PRE_APPROVAL_URL
+        self.pre_approval_request_url = pre_approval_request_url or PRE_APPROVAL_REQUEST_URL
+        self.pre_approval_redirect_url = pre_approval_redirect_url or PRE_APPROVAL_REDIRECT_URL
+        self.pre_approval_notification_url = pre_approval_notification_url or PRE_APPROVAL_NOTIFICATION_URL
+        self.pre_approval_cancel_url = pre_approval_cancel_url or PRE_APPROVAL_CANCEL_URL
         self.pagseguro_email = pagseguro_email or PAGSEGURO_EMAIL
         self.pagseguro_token = pagseguro_token or PAGSEGURO_TOKEN
         self.currency = currency
@@ -141,9 +154,12 @@ class PagSeguroApi(object):
         logger.debug('operation=api_checkout, data={!r}'.format(data))
         return data
 
-    def get_notification(self, notification_id):
+
+    def _get_notification(self, notification_id, url, notification_type,
+                          notification_signal, notification_status):
+
         response = requests.get(
-            self.notification_url + '/{}'.format(notification_id),
+            '{0}/{1}'.format(url, notification_id),
             params={
                 'email': self.base_params['email'],
                 'token': self.base_params['token']
@@ -152,24 +168,46 @@ class PagSeguroApi(object):
 
         if response.status_code == 200:
             root = xmltodict.parse(response.text)
-            transaction = root['transaction']
-            notificacao_recebida.send(
+            transaction = root[notification_type]
+            notification_signal.send(
                 sender=self, transaction=transaction
             )
 
             status = transaction['status']
-            if status in NOTIFICATION_STATUS:
-                signal = NOTIFICATION_STATUS[status]
-                signal.send(
-                    sender=self, transaction=transaction
-                )
+            if status in notification_status:
+                signal = notification_status[status]
+                signal.send(sender=self, transaction=transaction)
+
+        return response
+
+    def get_notification(self, notification_id, notification_type='transaction'):
+        if notification_type == 'transaction':
+            response = self._get_notification(
+                notification_id,
+                self.notification_url,
+                'transaction',
+                notificacao_recebida,
+                NOTIFICATION_STATUS,
+            )
+        else:
+            response = self._get_notification(
+                notification_id,
+                self.pre_approval_notification_url,
+                'preApproval',
+                pre_approval_notification,
+                PRE_APPROVAL_NOTIFICATION_STATUS,
+            )
 
         logger.debug(
             'operation=api_get_notification, '
+            'notification_type={}, '
             'notification_id={}, '
             'response_body={}, '
             'response_status={}'.format(
-                notification_id, response.text, response.status_code
+                notification_type,
+                notification_id,
+                response.text,
+                response.status_code
             )
         )
         return response
@@ -207,6 +245,42 @@ class PagSeguroApi(object):
             'data={!r}, '
             'response_status={}'.format(
                 transaction_id, data, response.status_code
+            )
+        )
+        return data
+
+    def get_pre_approval(self, pre_approval_id):
+        response = requests.get(
+            '{0}/{1}'.format(self.pre_approval_url, pre_approval_id),
+            params={
+                'email': self.base_params['email'],
+                'token': self.base_params['token']
+            }
+        )
+
+        if response.status_code == 200:
+            root = xmltodict.parse(response.text)
+            transaction = root['preApproval']
+
+            data = {
+                'transaction': transaction,
+                'status_code': response.status_code,
+                'success': True,
+                'date': timezone.now()
+            }
+        else:
+            data = {
+                'status_code': response.status_code,
+                'message': response.text,
+                'success': False,
+                'date': timezone.now()
+            }
+        logger.debug(
+            'operation=api_get_pre_approval, '
+            'pre_approval_id={}, '
+            'data={!r}, '
+            'response_status={}'.format(
+                pre_approval_id, data, response.status_code
             )
         )
         return data
@@ -360,6 +434,122 @@ class PagSeguroApiTransparent(PagSeguroApi):
 
         logger.debug(
             'operation=transparent_api_get_session_id, '
+            'data={!r}'.format(data)
+        )
+        return data
+
+
+class PagSeguroApiPreApproval(PagSeguroApi):
+
+    def create(self, name, amount_per_payment, period, max_total_amount,
+               final_date='', max_amount_per_payment='', charge='auto',
+               details='', redirect_code=''):
+
+        from pagseguro.models import PreApprovalPlan
+
+        pre_approval = PreApprovalPlan(
+            name=name,
+            amount_per_payment=amount_per_payment,
+            period=period.upper(),
+            final_date=final_date,
+            max_total_amount=max_total_amount,
+            charge=charge,
+            details=details,
+            reference=self.base_params.get('reference', ''),
+            redirect_code=redirect_code,
+        )
+        pre_approval.save()
+
+    def set_pre_approval_data(self, name, amount_per_payment, period,
+                              max_total_amount, final_date, charge='auto',
+                              details=''):
+
+        self.params['preApprovalName'] = name
+        self.params['preApprovalAmountPerPayment'] = amount_per_payment
+        self.params['preApprovalPeriod'] = period
+        self.params['preApprovalFinalDate'] = final_date.isoformat()
+        self.params['preApprovalMaxTotalAmount'] = max_total_amount
+        self.params['preApprovalCharge'] = charge
+        self.params['preApprovalDetails'] = details
+
+    def create_plan(self, *args, **kwargs):
+        kwargs['max_total_amount'] = '{0:.2f}'.format(
+            kwargs['max_total_amount']
+        )
+        kwargs['amount_per_payment'] = '{0:.2f}'.format(
+            kwargs['amount_per_payment']
+        )
+
+        self.set_pre_approval_data(**kwargs)
+
+        self.build_params()
+        headers = {
+            'content-type': 'application/x-www-form-urlencoded; charset=UTF-8'
+        }
+        response = requests.post(
+            self.pre_approval_request_url, self.params, headers=headers
+        )
+
+        if response.status_code == 200:
+            root = xmltodict.parse(response.text)
+            pre_approval = root['preApprovalRequest']
+
+            self.create(redirect_code=pre_approval['code'], **kwargs)
+
+            # FIXME
+            data = {
+                'pre_approval': pre_approval,
+                'status_code': response.status_code,
+                'success': True,
+                'date': parse(pre_approval['date']),
+                'code': pre_approval['code'],
+                'redirect_url': '{0}?code={1}'.format(
+                    self.pre_approval_redirect_url, pre_approval['code']
+                ),
+            }
+            pre_approval_create_plan.send(sender=self, data=data)
+        else:
+            # FIXME
+            data = {
+                'status_code': response.status_code,
+                'message': response.text,
+                'success': False,
+                'date': timezone.now()
+            }
+            pre_approval_create_plan_error.send(sender=self, data=data)
+        logger.debug(
+            'operation=preapproval_api_create_plan, '
+            'data={!r}'.format(data)
+        )
+        return data
+
+    def pre_approval_cancel(self, pre_approval_code):
+        # FIXME
+        headers = {
+            'content-type': 'application/x-www-form-urlencoded; charset=UTF-8'
+        }
+
+        params = {
+            'email': self.base_params['email'],
+            'token': self.base_params['token'],
+        }
+
+        url = '{0}/{1}'.format(self.pre_approval_cancel_url, pre_approval_code)
+        response = requests.get(url, params, headers=headers)
+
+        if response.status_code == 200:
+            data = self.get_pre_approval(pre_approval_code).get('transaction')
+            pre_approval_notification.send(sender=self, transaction=data)
+            pre_approval_status_cancelled.send(sender=self, transaction=data)
+        else:
+            data = {
+                'status_code': response.status_code,
+                'message': response.text,
+                'success': False,
+                'date': timezone.now(),
+            }
+        logger.debug(
+            'operation=preapproval_api_pre_approval_cancel, '
             'data={!r}'.format(data)
         )
         return data

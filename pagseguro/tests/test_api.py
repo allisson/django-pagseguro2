@@ -5,10 +5,14 @@ import responses
 from dateutil.parser import parse
 from django.test import TestCase
 
-from pagseguro.api import PagSeguroItem, PagSeguroApi, PagSeguroApiTransparent
+from pagseguro.api import (
+    PagSeguroItem, PagSeguroApi, PagSeguroApiTransparent,
+    PagSeguroApiPreApproval
+)
 from pagseguro.settings import (
-    CHECKOUT_URL, PAYMENT_URL, NOTIFICATION_URL,
-    TRANSACTION_URL, SESSION_URL
+    CHECKOUT_URL, PAYMENT_URL, NOTIFICATION_URL, TRANSACTION_URL, SESSION_URL,
+    PRE_APPROVAL_URL, PRE_APPROVAL_CANCEL_URL, PRE_APPROVAL_REQUEST_URL,
+    PRE_APPROVAL_REDIRECT_URL, PRE_APPROVAL_NOTIFICATION_URL
 )
 
 
@@ -693,3 +697,191 @@ class PagSeguroApiTransparentTest(TestCase):
         self.assertEqual(data['success'], False)
         self.assertEqual(data['message'], 'Unauthorized')
         self.assertEqual(data['status_code'], 401)
+
+
+pre_approval_create_plan_response_xml = '''<?xml version="1.0" encoding="UTF-8"?>
+<preApprovalRequest>
+    <code>97A07B380D0DE04994DECF8D03896C98</code>
+    <date>2017-10-03T18:43:22-03:00</date>
+</preApprovalRequest>
+'''
+
+pre_approval_create_plan_invalid_response_xml = '''<?xml version="1.0" encoding="UTF-8"?>
+<errors>
+    <error>
+        <code>11072</code>
+        <message>preApprovalFinalDate invalid value.</message>
+    </error>
+</errors>
+'''
+
+pre_approval_cancel_response_ok_xml = '''<?xml version="1.0" encoding="UTF-8"?>
+<result>
+    <date>2017-10-03T18:45:22.000-03:00</date>
+    <status>OK</status>
+</result>
+'''
+
+pre_approval_cancel_response_error_xml = '''<?xml version="1.0" encoding="UTF-8"?>
+<errors>
+    <error>
+        <code>17022</code>
+        <message>invalid pre-approval status to execute the requested operation. Preapproval status is CANCELLED_BY_RECEIVER.</message>
+    </error>
+</errors>
+'''
+
+pre_approval_cancelled_response_xml = '''<?xml version="1.0" encoding="UTF-8"?>
+<preApproval>
+    <name>Seguro contra roubo do Notebook Prata</name>
+    <code>97A07B380D0DE04994DECF8D03896C98</code>
+    <date>2011-11-23T13:40:23.000-02:00</date>
+    <tracker>538C53</tracker>
+    <status>CANCELLED</status>
+    <reference>REF1234</reference>
+    <lastEventDate>2011-11-25T20:04:23.000-02:00</lastEventDate>
+    <charge>auto</charge>
+    <sender>
+        <name>Nome Comprador</name>
+        <email>comprador@uol.com</email>
+        <phone>
+            <areaCode>11</areaCode>
+            <number>30389678</number>
+        </phone>
+        <address>
+            <street>ALAMEDA ITU</street>
+            <number>78</number>
+            <complement>ap. 2601</complement>
+            <district>Jardim Paulista</district>
+            <city>SAO PAULO</city>
+            <state>SP</state>
+            <country>BRASIL</country>
+            <postalCode>01421000</postalCode>
+        </address>
+    </sender>
+</preApproval>
+'''
+
+
+class PagSeguroApiPreApprovalTest(TestCase):
+
+    def setUp(self):
+        self.pagseguro_api = PagSeguroApiPreApproval()
+        self.pre_approval_code = '97A07B380D0DE04994DECF8D03896C98'
+
+    def test_set_pre_approval_data(self):
+        data = {
+            'name': 'Seguro contra roubo de Notebook',
+            'amount_per_payment': '100.00',
+            'period': 'Monthly',
+            'final_date': parse('2020-11-27 00:00:00'),
+            'max_total_amount': 2400.00,
+            'charge': 'auto',
+            'details': 'Todo dia 28 será cobrado o valor de R$100,00',
+        }
+        self.pagseguro_api.set_pre_approval_data(**data)
+        params = self.pagseguro_api.params
+        self.assertEqual(params['preApprovalName'], data['name'])
+        self.assertEqual(
+            params['preApprovalAmountPerPayment'], data['amount_per_payment']
+        )
+        self.assertEqual(params['preApprovalPeriod'], data['period'])
+        self.assertEqual(
+            params['preApprovalFinalDate'], data['final_date'].isoformat()
+        )
+        self.assertEqual(
+            params['preApprovalMaxTotalAmount'],
+            data['max_total_amount']
+        )
+        self.assertEqual(params['preApprovalCharge'], data['charge'])
+        self.assertEqual(params['preApprovalDetails'], data['details'])
+
+    @responses.activate
+    def test_pre_approval_cancel_with_success(self):
+        # mock requests
+        responses.add(
+            responses.GET,
+            '{0}/{1}'.format(PRE_APPROVAL_CANCEL_URL, self.pre_approval_code),
+            body=pre_approval_cancel_response_ok_xml,
+            status=200,
+        )
+        responses.add(
+            responses.GET,
+            '{0}/{1}'.format(PRE_APPROVAL_URL, self.pre_approval_code),
+            body=pre_approval_cancelled_response_xml,
+            status=200,
+        )
+
+        data = self.pagseguro_api.pre_approval_cancel(self.pre_approval_code)
+        self.assertEqual(data.get('status'), 'CANCELLED')
+        self.assertEqual(data.get('code'), self.pre_approval_code)
+
+    @responses.activate
+    def test_pre_approval_cancel_with_error(self):
+        # mock requests
+        responses.add(
+            responses.GET,
+            '{0}/{1}'.format(PRE_APPROVAL_CANCEL_URL, self.pre_approval_code),
+            body=pre_approval_cancel_response_error_xml,
+            status=400,
+        )
+
+        data = self.pagseguro_api.pre_approval_cancel(self.pre_approval_code)
+
+        self.assertEqual(data.get('status_code'), 400)
+        self.assertFalse(data.get('success'))
+
+    @responses.activate
+    def test_create_valid_plan(self):
+        responses.add(
+            responses.POST,
+            PRE_APPROVAL_REQUEST_URL,
+            body=pre_approval_create_plan_response_xml,
+            status=200,
+        )
+        pre_approval_data = {
+            'name': '2 mês de treinamento virtual',
+            'amount_per_payment': 9.90,
+            'period': 'Monthly',
+            'final_date': parse('2017-11-03T18:43:22-03:00'),
+            'max_total_amount': 20.00,
+            'charge': 'auto',
+            'details': 'Todo dia 02 será cobrado o valor de R9,90',
+        }
+        data = self.pagseguro_api.create_plan(**pre_approval_data)
+
+        self.assertEqual(data.get('status_code'), 200)
+        self.assertTrue(data.get('success'))
+        self.assertEqual(data.get('date'), parse('2017-10-03T18:43:22-03:00'))
+        self.assertEqual(data.get('code'), self.pre_approval_code)
+        self.assertEqual(
+            data.get('redirect_url'),
+            '{0}?code={1}'.format(
+                PRE_APPROVAL_REDIRECT_URL, self.pre_approval_code
+            )
+        )
+
+    @responses.activate
+    def test_create_invalid_plan(self):
+        responses.add(
+            responses.POST,
+            PRE_APPROVAL_REQUEST_URL,
+            body=pre_approval_create_plan_invalid_response_xml,
+            status=400,
+        )
+        pre_approval_data = {
+            'name': '2 mês de treinamento virtual',
+            'amount_per_payment': 9.90,
+            'period': 'Monthly',
+            'final_date': parse('2017-10-03T18:43:22-03:00'),
+            'max_total_amount': 20.00,
+            'charge': 'auto',
+            'details': 'Todo dia 02 será cobrado o valor de R9,90',
+        }
+
+        # FIXME: remove final_date
+
+        data = self.pagseguro_api.create_plan(**pre_approval_data)
+
+        self.assertEqual(data.get('status_code'), 400)
+        self.assertFalse(data.get('success'))
