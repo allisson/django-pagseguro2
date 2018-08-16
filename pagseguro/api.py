@@ -62,12 +62,20 @@ class PagSeguroItem(object):
 class PagSeguroApi(object):
     def __init__(self, checkout_url=None, redirect_url=None,
                  notification_url=None, transaction_url=None,
-                 pagseguro_email=None, pagseguro_token=None, currency='BRL',
+                 pagseguro_email=None, pagseguro_token=None,
+                 pre_approval_url=None, pre_approval_request_url=None,
+                 pre_approval_redirect_url=None, pre_approval_notification_url=None,
+                 pre_approval_cancel_url=None, currency='BRL',
                  **kwargs):
         self.checkout_url = checkout_url or CHECKOUT_URL
         self.redirect_url = redirect_url or PAYMENT_URL
         self.notification_url = notification_url or NOTIFICATION_URL
         self.transaction_url = transaction_url or TRANSACTION_URL
+        self.pre_approval_url = pre_approval_url or PRE_APPROVAL_URL
+        self.pre_approval_request_url = pre_approval_request_url or PRE_APPROVAL_REQUEST_URL
+        self.pre_approval_redirect_url = pre_approval_redirect_url or PRE_APPROVAL_REDIRECT_URL
+        self.pre_approval_notification_url = pre_approval_notification_url or PRE_APPROVAL_NOTIFICATION_URL
+        self.pre_approval_cancel_url = pre_approval_cancel_url or PRE_APPROVAL_CANCEL_URL
         self.pagseguro_email = pagseguro_email or PAGSEGURO_EMAIL
         self.pagseguro_token = pagseguro_token or PAGSEGURO_TOKEN
         self.currency = currency
@@ -79,12 +87,6 @@ class PagSeguroApi(object):
         self.base_params.update(kwargs)
         self.params = {}
         self.items = []
-        # FIXME
-        self.pre_approval_url = PRE_APPROVAL_URL
-        self.pre_approval_request_url = PRE_APPROVAL_REQUEST_URL
-        self.pre_approval_redirect_url = PRE_APPROVAL_REDIRECT_URL
-        self.pre_approval_notification_url = PRE_APPROVAL_NOTIFICATION_URL
-        self.pre_approval_cancel_url = PRE_APPROVAL_CANCEL_URL
 
     def add_item(self, item):
         self.items.append(item)
@@ -156,7 +158,7 @@ class PagSeguroApi(object):
                           notification_signal, notification_status):
 
         response = requests.get(
-            self.notification_url + '/{}'.format(notification_id),
+            '{0}/{1}'.format(url, notification_id),
             params={
                 'email': self.base_params['email'],
                 'token': self.base_params['token']
@@ -177,10 +179,14 @@ class PagSeguroApi(object):
 
         logger.debug(
             'operation=api_get_notification, '
+            'notification_type={}, '
             'notification_id={}, '
             'response_body={}, '
             'response_status={}'.format(
-                notification_id, response.text, response.status_code
+                notification_type,
+                notification_id,
+                response.text,
+                response.status_code
             )
         )
         return response
@@ -268,6 +274,14 @@ class PagSeguroApi(object):
                 'date': timezone.now()
             }
 
+        logger.debug(
+            'operation=api_get_pre_approval, '
+            'pre_approval_id={}, '
+            'data={!r}, '
+            'response_status={}'.format(
+                pre_approval_id, data, response.status_code
+            )
+        )
         return data
 
 
@@ -503,6 +517,10 @@ class PagSeguroApiPreApproval(PagSeguroApi):
             }
             pre_approval_create_plan_error.send(sender=self, data=data)
 
+        logger.debug(
+            'operation=preapproval_api_create_plan, '
+            'data={!r}'.format(data)
+        )
         return data
 
     def pre_approval_cancel(self, pre_approval_code):
@@ -531,4 +549,8 @@ class PagSeguroApiPreApproval(PagSeguroApi):
                 'date': timezone.now(),
             }
 
+        logger.debug(
+            'operation=preapproval_api_pre_approval_cancel, '
+            'data={!r}'.format(data)
+        )
         return data

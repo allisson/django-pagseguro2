@@ -100,6 +100,7 @@ def update_transaction(sender, transaction, **kwargs):
         date=parse(trans.get('lastEventDate'))
     )
 
+
 def update_pre_approval(sender, transaction, **kwargs):
     from pagseguro.models import (
         PreApproval, PreApprovalHistory
