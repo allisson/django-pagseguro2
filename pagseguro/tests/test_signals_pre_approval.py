@@ -2,7 +2,10 @@
 
 import responses
 from django.test import TestCase
-from django.core.urlresolvers import reverse
+try:
+    from django.urls import reverse
+except ImportError:
+    from django.core.urlresolvers import reverse
 from django.utils import timezone
 from dateutil.parser import parse
 from mock import patch
