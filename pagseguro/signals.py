@@ -23,7 +23,6 @@ notificacao_status_cancelado = Signal(providing_args=['transaction'])
 notificacao_status_debitado = Signal(providing_args=['transaction'])
 notificacao_status_retencao_temporaria = Signal(providing_args=['transaction'])
 
-
 NOTIFICATION_STATUS = {
     '1': notificacao_status_aguardando,
     '2': notificacao_status_em_analise,
@@ -34,6 +33,25 @@ NOTIFICATION_STATUS = {
     '7': notificacao_status_cancelado,
     '8': notificacao_status_debitado,
     '9': notificacao_status_retencao_temporaria,
+}
+
+pre_approval_notification = Signal(providing_args=['transaction'])
+pre_approval_create_plan = Signal(providing_args=['data'])
+pre_approval_create_plan_error = Signal(providing_args=['data'])
+pre_approval_status_pending = Signal(providing_args=['transaction'])
+pre_approval_status_active = Signal(providing_args=['transaction'])
+pre_approval_status_cancelled = Signal(providing_args=['transaction'])
+pre_approval_status_cancelled_by_receiver = Signal(providing_args=['transaction'])
+pre_approval_status_cancelled_by_sender = Signal(providing_args=['transaction'])
+pre_approval_status_expired = Signal(providing_args=['transaction'])
+
+PRE_APPROVAL_NOTIFICATION_STATUS = {
+    'PENDING': pre_approval_status_pending,
+    'ACTIVE': pre_approval_status_active,
+    'CANCELLED': pre_approval_status_cancelled,
+    'CANCELLED_BY_RECEIVER': pre_approval_status_cancelled_by_receiver,
+    'CANCELLED_BY_SENDER': pre_approval_status_cancelled_by_sender,
+    'EXPIRED': pre_approval_status_expired,
 }
 
 
@@ -63,6 +81,7 @@ def update_transaction(sender, transaction, **kwargs):
     except Transaction.DoesNotExist:
         transaction = Transaction.objects.create(
             code=trans.get('code'),
+            transaction_type = trans.get('type'),
             status=TRANSACTION_STATUS[trans.get('status')],
             date=parse(trans.get('date')),
             last_event_date=parse(trans.get('lastEventDate')),
@@ -79,4 +98,34 @@ def update_transaction(sender, transaction, **kwargs):
         transaction=transaction,
         status=TRANSACTION_STATUS[trans.get('status')],
         date=parse(trans.get('lastEventDate'))
+    )
+
+
+def update_pre_approval(sender, transaction, **kwargs):
+    from pagseguro.models import (
+        PreApproval, PreApprovalHistory
+    )
+
+    try:
+        pre_approval = PreApproval.objects.get(code=transaction.get('code'))
+    except PreApproval.DoesNotExist:
+        pre_approval = PreApproval.objects.create(
+            code=transaction.get('code'),
+            tracker=transaction.get('tracker'),
+            status=transaction.get('status'),
+            date=parse(transaction.get('date')),
+            last_event_date=parse(transaction.get('lastEventDate')),
+            content=json.dumps(transaction, indent=2),
+            reference=transaction.get('reference', '')
+        )
+
+    pre_approval.status = transaction.get('status')
+    pre_approval.last_event_date = parse(transaction.get('lastEventDate'))
+    pre_approval.content = json.dumps(transaction, indent=2)
+    pre_approval.save()
+
+    PreApprovalHistory.objects.create(
+        pre_approval=pre_approval,
+        status=transaction.get('status'),
+        date=parse(transaction.get('lastEventDate'))
     )

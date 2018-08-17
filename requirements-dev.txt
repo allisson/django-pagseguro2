@@ -2,3 +2,4 @@ coverage>=3.7.1
 coveralls>=0.4.2
 responses>=0.8.1
 twine>=1.11.0
+django-cors-headers>=2.1.0
