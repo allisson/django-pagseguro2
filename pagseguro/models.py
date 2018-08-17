@@ -49,6 +49,30 @@ PRE_APPROVAL_STATUS_CHOICES = (
 )
 
 
+PRE_APPROVAL_PERIOD_CHOICES = (
+    ('WEEKLY', 'Semanal'),
+    ('MONTHLY', 'Mensal'),
+    ('BIMONTHLY', '2 vezes ao mês'),
+    ('TRIMONTHLY', '3 vezes por mês'),
+    ('SEMIANNUALLY', 'A cada 6 meses'),
+    ('YEARLY', 'Anualmente'),
+)
+
+PRE_APPROVAL_CHARGE_CHOICES = (
+    ('auto', 'Automática'),
+    ('manual', 'Manual'),
+)
+
+PRE_APPROVAL_STATUS_CHOICES = (
+    ('PENDING', 'Aguardando processamento do pagamento'),
+    ('ACTIVE',  'Ativa'),
+    ('CANCELLED', 'Cancelada'),
+    ('CANCELLED_BY_RECEIVER', 'Cancelada pelo Vendedor'),
+    ('CANCELLED_BY_SENDER', 'Cancelada pelo Comprador'),
+    ('EXPIRED', 'Expirada'),
+)
+
+
 @python_2_unicode_compatible
 class Checkout(models.Model):
     code = models.CharField(
@@ -84,6 +108,14 @@ class Checkout(models.Model):
 
 @python_2_unicode_compatible
 class Transaction(models.Model):
+    transaction_type = models.CharField(
+        'tipo',
+        default='1',
+        max_length=2,
+        db_index=True,
+        choices=TRANSACTION_TYPE,
+        help_text='Representa o tipo da transação recebida.'
+    )
     code = models.CharField(
         'código',
         max_length=100,
@@ -157,7 +189,6 @@ class TransactionHistory(models.Model):
 
 @python_2_unicode_compatible
 class PreApprovalPlan(models.Model):
-
     charge = models.CharField(
         'Cobrança',
         max_length=20,
@@ -165,7 +196,6 @@ class PreApprovalPlan(models.Model):
         choices=PRE_APPROVAL_CHARGE_CHOICES,
         help_text='Indica se a assinatura será gerenciada pelo PagSeguro (automática) ou pelo Vendedor (manual)',
     )
-
     name = models.CharField(
         'Nome',
         max_length=100,
@@ -173,14 +203,12 @@ class PreApprovalPlan(models.Model):
         db_index=True,
         help_text='Nome/Identificador da assinatura',
     )
-
     details = models.TextField(
         'Detalhes',
         max_length=255,
         blank=True,
         help_text='Detalhes/Descrição da assinatura',
     )
-
     amount_per_payment = models.DecimalField(
         'Valor da cobrança',
         max_digits=9,
@@ -189,7 +217,6 @@ class PreApprovalPlan(models.Model):
         null=True,
         help_text='Valor exato de cada cobrança',
     )
-
     max_amount_per_payment = models.DecimalField(
         'Valor máximo de cada cobrança',
         max_digits=9,
@@ -198,7 +225,6 @@ class PreApprovalPlan(models.Model):
         null=True,
         help_text='Valor máximo de cada cobrança',
     )
-
     period = models.CharField(
         'Periodicidade',
         max_length=20,
@@ -206,7 +232,6 @@ class PreApprovalPlan(models.Model):
         choices=PRE_APPROVAL_PERIOD_CHOICES,
         help_text='Periodicidade da cobrança',
     )
-
     final_date = models.DateTimeField(
         'Data Final',
         db_index=True,
@@ -214,7 +239,6 @@ class PreApprovalPlan(models.Model):
         null=True,
         help_text='Fim da vigência da assinatura',
     )
-
     max_total_amount = models.DecimalField(
         'Valor máximo de cada cobrança',
         max_digits=9,
@@ -223,7 +247,6 @@ class PreApprovalPlan(models.Model):
         null=True,
         help_text='Valor máximo de cada cobrança',
     )
-
     reference = models.CharField(
         'Referência',
         max_length=200,
@@ -232,7 +255,6 @@ class PreApprovalPlan(models.Model):
         null=True,
         help_text='A referência passada na transação.'
     )
-
     redirect_code = models.CharField(
         'código',
         max_length=100,
@@ -248,9 +270,9 @@ class PreApprovalPlan(models.Model):
         verbose_name = 'Assinatura: Plano'
         verbose_name_plural = 'Assinaturas: Planos'
 
+
 @python_2_unicode_compatible
 class PreApproval(models.Model):
-
     code = models.CharField(
         'código',
         max_length=100,
@@ -258,7 +280,6 @@ class PreApproval(models.Model):
         db_index=True,
         help_text='O código da transação.'
     )
-
     tracker = models.CharField(
         'identificador público',
         max_length=100,
@@ -266,7 +287,6 @@ class PreApproval(models.Model):
         db_index=True,
         help_text='Código identificador público.'
     )
-
     reference = models.CharField(
         'referência',
         max_length=200,
@@ -274,7 +294,6 @@ class PreApproval(models.Model):
         blank=True,
         help_text='A referência passada na transação.'
     )
-
     status = models.CharField(
         'Status',
         max_length=20,
@@ -282,17 +301,14 @@ class PreApproval(models.Model):
         choices=PRE_APPROVAL_STATUS_CHOICES,
         help_text='Status atual da transação.'
     )
-
     date = models.DateTimeField(
         'Data',
         help_text='Data em que a transação foi criada.'
     )
-
     last_event_date = models.DateTimeField(
         'Última alteração',
         help_text='Data da última alteração na transação.'
     )
-
     content = models.TextField(
         'Transação',
         help_text='Transação no formato json.'
@@ -306,22 +322,20 @@ class PreApproval(models.Model):
         verbose_name = 'Assinatura: Transação'
         verbose_name_plural = 'Assinaturas: Transações'
 
+
 @python_2_unicode_compatible
 class PreApprovalHistory(models.Model):
-
     pre_approval = models.ForeignKey(
         PreApproval,
         on_delete=models.CASCADE,
         verbose_name='Transação'
     )
-
     status = models.CharField(
         'Status',
         max_length=20,
         choices=PRE_APPROVAL_STATUS_CHOICES,
         help_text='Status da transação.'
     )
-
     date = models.DateTimeField(
         'Data'
     )

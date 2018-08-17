@@ -22,7 +22,6 @@ def receive_notification(request):
         response = pagseguro_api.get_notification(
             notification_code, notification_type
         )
-
         if response.status_code == 200:
             if six.PY2:
                 return HttpResponse(six.b('Notificação recebida com sucesso.'))
