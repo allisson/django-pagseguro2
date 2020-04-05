@@ -3,8 +3,8 @@ django-pagseguro2
 
 Integração da API v2 do PagSeguro com o Django.
 
-.. image:: https://travis-ci.org/allisson/django-pagseguro2.svg?branch=master
-    :target: https://travis-ci.org/allisson/django-pagseguro2
+.. image:: https://github.com/allisson/django-pagseguro2/workflows/tests/badge.svg
+    :target: https://github.com/allisson/django-pagseguro2/actions
 
 .. image:: https://coveralls.io/repos/allisson/django-pagseguro2/badge.png?branch=master
     :target: https://coveralls.io/r/allisson/django-pagseguro2?branch=master
