@@ -30,7 +30,3 @@ jobs:
     - name: Run Tests
       run: |
         coverage run --source=pagseguro testapp/manage.py test pagseguro
-    - name: Coveralls
-      uses: coverallsapp/github-action@master
-      with:
-        github-token: ${{ secrets.GITHUB_TOKEN }}
