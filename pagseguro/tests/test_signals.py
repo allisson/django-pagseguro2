@@ -1,16 +1,10 @@
-# -*- coding: utf-8 -*-
-from django.test import TestCase
-try:
-    from django.urls import reverse
-except ImportError:
-    from django.core.urlresolvers import reverse
-
 import responses
+from django.test import TestCase
+from django.urls import reverse
 
-from pagseguro.settings import NOTIFICATION_URL, CHECKOUT_URL
-from pagseguro.api import PagSeguroItem, PagSeguroApi
+from pagseguro.api import PagSeguroApi, PagSeguroItem
 from pagseguro.models import Transaction, TransactionHistory
-
+from pagseguro.settings import CHECKOUT_URL, NOTIFICATION_URL
 
 notification_response_xml = '''<?xml version="1.0" encoding="UTF-8"?>
 <transaction>

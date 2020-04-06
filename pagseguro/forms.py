@@ -1,8 +1,6 @@
-# -*- coding: utf-8 -*-
-from __future__ import unicode_literals
-from django import forms
-
 from decimal import Decimal
+
+from django import forms
 
 
 class PagSeguroItemForm(forms.Form):

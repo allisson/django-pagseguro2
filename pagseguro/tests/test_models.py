@@ -1,10 +1,5 @@
-# -*- coding: utf-8 -*-
 from django.test import TestCase
 from django.utils import timezone
-try:
-    from django.utils.encoding import smart_unicode
-except ImportError:
-    from django.utils.encoding import smart_text as smart_unicode
 
 from pagseguro.models import Checkout, Transaction, TransactionHistory
 
@@ -18,7 +13,7 @@ class CheckoutTest(TestCase):
             success=True
         )
         self.assertEqual(
-            smart_unicode(checkout), '{0}'.format(checkout.pk)
+            str(checkout), '{0}'.format(checkout.pk)
         )
 
 
@@ -33,7 +28,7 @@ class TransactionTest(TestCase):
             last_event_date=timezone.now()
         )
         self.assertEqual(
-            smart_unicode(transaction), transaction.code
+            str(transaction), transaction.code
         )
 
 
@@ -53,7 +48,7 @@ class TransactionHistoryTest(TestCase):
             status='aguardando'
         )
         self.assertEqual(
-            smart_unicode(tx_history),
+            str(tx_history),
             '{0} - {1} - {2}'.format(
                 tx_history.transaction, tx_history.status, tx_history.date
             )

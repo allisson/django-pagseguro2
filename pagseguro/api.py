@@ -1,20 +1,27 @@
-# -*- coding: utf-8 -*-
-from __future__ import unicode_literals
 import logging
-from django.utils import timezone
+
 import requests
 import xmltodict
 from dateutil.parser import parse
+from django.utils import timezone
 
+from pagseguro.forms import PagSeguroItemForm
 from pagseguro.settings import (
-    PAGSEGURO_EMAIL, PAGSEGURO_TOKEN, CHECKOUT_URL, PAYMENT_URL,
-    NOTIFICATION_URL, TRANSACTION_URL, SESSION_URL
+    CHECKOUT_URL,
+    NOTIFICATION_URL,
+    PAGSEGURO_EMAIL,
+    PAGSEGURO_TOKEN,
+    PAYMENT_URL,
+    SESSION_URL,
+    TRANSACTION_URL,
 )
 from pagseguro.signals import (
-    notificacao_recebida, NOTIFICATION_STATUS, checkout_realizado,
-    checkout_realizado_com_sucesso, checkout_realizado_com_erro
+    NOTIFICATION_STATUS,
+    checkout_realizado,
+    checkout_realizado_com_erro,
+    checkout_realizado_com_sucesso,
+    notificacao_recebida,
 )
-from pagseguro.forms import PagSeguroItemForm
 
 logger = logging.getLogger(__name__)
 

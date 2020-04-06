@@ -1,14 +1,7 @@
-# -*- coding: utf-8 -*-
-from __future__ import unicode_literals
 from django.db import models
-from django.utils.encoding import python_2_unicode_compatible
 
 from pagseguro.settings import PAGSEGURO_LOG_IN_MODEL
-from pagseguro.signals import (
-    checkout_realizado, notificacao_recebida, save_checkout,
-    update_transaction
-)
-
+from pagseguro.signals import checkout_realizado, notificacao_recebida, save_checkout, update_transaction
 
 TRANSACTION_STATUS_CHOICES = (
     ('aguardando', 'Aguardando'),
@@ -21,7 +14,6 @@ TRANSACTION_STATUS_CHOICES = (
 )
 
 
-@python_2_unicode_compatible
 class Checkout(models.Model):
     code = models.CharField(
         'código',
@@ -54,7 +46,6 @@ class Checkout(models.Model):
         verbose_name_plural = 'Checkouts'
 
 
-@python_2_unicode_compatible
 class Transaction(models.Model):
     code = models.CharField(
         'código',
@@ -99,7 +90,6 @@ class Transaction(models.Model):
         verbose_name_plural = 'Transações'
 
 
-@python_2_unicode_compatible
 class TransactionHistory(models.Model):
     transaction = models.ForeignKey(
         Transaction,

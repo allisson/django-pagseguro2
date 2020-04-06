@@ -9,11 +9,8 @@ jobs:
     strategy:
       max-parallel: 4
       matrix:
-        python-version: [2.7, 3.5, 3.6, 3.7]
-        django: [1.8.19, 1.9.13, 1.10.8, 1.11.29, 2.0.13]
-        exclude:
-          - django: 2.0.13
-            python-version: 2.7
+        python-version: [3.5, 3.6, 3.7, 3.8]
+        django: [2.2.12, 3.0.5]
 
     steps:
     - uses: actions/checkout@v2
@@ -26,7 +23,10 @@ jobs:
         python -m pip install --upgrade pip
         pip install -q Django==${{ matrix.django }}
         pip install -e .
-        pip install -r .travis-requirements.txt
+        pip install -r requirements-dev.txt
+    - name: Run lint
+      run: |
+        make lint
     - name: Run Tests
       run: |
         coverage run --source=pagseguro testapp/manage.py test pagseguro

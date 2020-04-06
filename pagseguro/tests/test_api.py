@@ -1,15 +1,11 @@
-# -*- coding: utf-8 -*-
 from decimal import Decimal
 
 import responses
 from dateutil.parser import parse
 from django.test import TestCase
 
-from pagseguro.api import PagSeguroItem, PagSeguroApi, PagSeguroApiTransparent
-from pagseguro.settings import (
-    CHECKOUT_URL, PAYMENT_URL, NOTIFICATION_URL,
-    TRANSACTION_URL, SESSION_URL
-)
+from pagseguro.api import PagSeguroApi, PagSeguroApiTransparent, PagSeguroItem
+from pagseguro.settings import CHECKOUT_URL, NOTIFICATION_URL, PAYMENT_URL, SESSION_URL, TRANSACTION_URL
 
 
 class PagSeguroItemTest(TestCase):

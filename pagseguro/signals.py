@@ -1,12 +1,9 @@
-# -*- coding: utf-8 -*-
-from __future__ import unicode_literals
-from django.dispatch import Signal
-
-from dateutil.parser import parse
 import json
 
-from pagseguro.settings import TRANSACTION_STATUS
+from dateutil.parser import parse
+from django.dispatch import Signal
 
+from pagseguro.settings import TRANSACTION_STATUS
 
 checkout_realizado = Signal(providing_args=['data'])
 checkout_realizado_com_sucesso = Signal(providing_args=['data'])

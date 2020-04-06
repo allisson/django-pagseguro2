@@ -1,13 +1,13 @@
-# -*- coding: utf-8 -*-
-from setuptools import setup, find_packages
 import io
+
+from setuptools import find_packages, setup
+
 import pagseguro
 
 version = pagseguro.__version__
 
 requires = [
-    'Django>=1.8',
-    'six',
+    'Django>=2.2',
     'requests',
     'python-dateutil',
     'xmltodict'
@@ -32,9 +32,9 @@ setup(
         'Intended Audience :: System Administrators',
         'Operating System :: OS Independent',
         'Topic :: Software Development',
-        'Programming Language :: Python :: 2.7',
-        'Programming Language :: Python :: 3.4',
         'Programming Language :: Python :: 3.5',
-        'Programming Language :: Python :: 3.6'
+        'Programming Language :: Python :: 3.6',
+        'Programming Language :: Python :: 3.7',
+        'Programming Language :: Python :: 3.8'
     ],
 )

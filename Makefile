@@ -14,6 +14,9 @@ clean-build:
 	@rm -fr dist/
 	@rm -fr *.egg-info
 
+lint:
+	SKIP=no-commit-to-branch pre-commit run -a -v
+
 test:
 	coverage run --source=pagseguro testapp/manage.py test pagseguro
 
