@@ -8,9 +8,7 @@ PAGSEGURO_LOG_IN_MODEL = getattr(settings, "PAGSEGURO_LOG_IN_MODEL", True)
 if PAGSEGURO_SANDBOX:
     CHECKOUT_URL = "https://ws.sandbox.pagseguro.uol.com.br/v2/checkout"
     PAYMENT_URL = "https://sandbox.pagseguro.uol.com.br/v2/checkout/payment.html"
-    NOTIFICATION_URL = (
-        "https://ws.sandbox.pagseguro.uol.com.br/v2/transactions/notifications"
-    )
+    NOTIFICATION_URL = "https://ws.sandbox.pagseguro.uol.com.br/v2/transactions/notifications"
     TRANSACTION_URL = "https://ws.sandbox.pagseguro.uol.com.br/v2/transactions"
     SESSION_URL = "https://ws.sandbox.pagseguro.uol.com.br/v2/sessions/"
 else:

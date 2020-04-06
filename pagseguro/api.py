@@ -28,14 +28,7 @@ logger = logging.getLogger(__name__)
 
 class PagSeguroItem(object):
     def __init__(
-        self,
-        id,
-        description,
-        amount,
-        quantity,
-        shipping_cost=None,
-        weight=None,
-        form_class=None,
+        self, id, description, amount, quantity, shipping_cost=None, weight=None, form_class=None,
     ):
         self.id = id
         self.description = description
@@ -79,7 +72,7 @@ class PagSeguroApi(object):
         pagseguro_email=None,
         pagseguro_token=None,
         currency="BRL",
-        **kwargs
+        **kwargs,
     ):
         self.checkout_url = checkout_url or CHECKOUT_URL
         self.redirect_url = redirect_url or PAYMENT_URL
@@ -133,9 +126,7 @@ class PagSeguroApi(object):
                 "code": root["checkout"]["code"],
                 "status_code": response.status_code,
                 "date": parse(root["checkout"]["date"]),
-                "redirect_url": "{}?code={}".format(
-                    self.redirect_url, root["checkout"]["code"]
-                ),
+                "redirect_url": "{}?code={}".format(self.redirect_url, root["checkout"]["code"]),
                 "success": True,
             }
             checkout_realizado_com_sucesso.send(sender=self, data=data)
@@ -156,10 +147,7 @@ class PagSeguroApi(object):
     def get_notification(self, notification_id):
         response = requests.get(
             self.notification_url + "/{}".format(notification_id),
-            params={
-                "email": self.base_params["email"],
-                "token": self.base_params["token"],
-            },
+            params={"email": self.base_params["email"], "token": self.base_params["token"]},
         )
 
         if response.status_code == 200:
@@ -176,19 +164,14 @@ class PagSeguroApi(object):
             "operation=api_get_notification, "
             "notification_id={}, "
             "response_body={}, "
-            "response_status={}".format(
-                notification_id, response.text, response.status_code
-            )
+            "response_status={}".format(notification_id, response.text, response.status_code)
         )
         return response
 
     def get_transaction(self, transaction_id):
         response = requests.get(
             self.transaction_url + "/{}".format(transaction_id),
-            params={
-                "email": self.base_params["email"],
-                "token": self.base_params["token"],
-            },
+            params={"email": self.base_params["email"], "token": self.base_params["token"]},
         )
 
         if response.status_code == 200:
@@ -276,15 +259,7 @@ class PagSeguroApiTransparent(PagSeguroApi):
         self.params["shippingType"] = shipping_type
 
     def set_creditcard_data(
-        self,
-        quantity,
-        value,
-        name,
-        birth_date,
-        cpf,
-        area_code,
-        phone,
-        no_interest_quantity=None,
+        self, quantity, value, name, birth_date, cpf, area_code, phone, no_interest_quantity=None,
     ):
         self.params["installmentQuantity"] = quantity
         self.params["installmentValue"] = value
@@ -297,15 +272,7 @@ class PagSeguroApiTransparent(PagSeguroApi):
             self.params["noInterestInstallmentQuantity"] = no_interest_quantity
 
     def set_creditcard_billing_address(
-        self,
-        street,
-        number,
-        district,
-        postal_code,
-        city,
-        state,
-        country,
-        complement=None,
+        self, street, number, district, postal_code, city, state, country, complement=None,
     ):
         self.params["billingAddressStreet"] = street
         self.params["billingAddressNumber"] = number
@@ -351,11 +318,7 @@ class PagSeguroApiTransparent(PagSeguroApi):
 
     def get_session_id(self):
         response = requests.post(
-            self.session_url,
-            params={
-                "email": self.base_params["email"],
-                "token": self.base_params["token"],
-            },
+            self.session_url, params={"email": self.base_params["email"], "token": self.base_params["token"]},
         )
 
         if response.status_code == 200:
@@ -375,7 +338,5 @@ class PagSeguroApiTransparent(PagSeguroApi):
                 "date": timezone.now(),
             }
 
-        logger.debug(
-            "operation=transparent_api_get_session_id, " "data={!r}".format(data)
-        )
+        logger.debug("operation=transparent_api_get_session_id, " "data={!r}".format(data))
         return data

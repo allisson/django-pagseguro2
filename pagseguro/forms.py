@@ -7,10 +7,7 @@ class PagSeguroItemForm(forms.Form):
     id = forms.CharField(max_length=100)
     description = forms.CharField(max_length=100)
     amount = forms.DecimalField(
-        max_digits=9,
-        max_value=Decimal("9999999.00"),
-        min_value=Decimal("0.01"),
-        decimal_places=2,
+        max_digits=9, max_value=Decimal("9999999.00"), min_value=Decimal("0.01"), decimal_places=2,
     )
     quantity = forms.IntegerField(min_value=1, max_value=999)
     shipping_cost = forms.DecimalField(
@@ -40,8 +37,6 @@ class PagSeguroItemForm(forms.Form):
             exponent = abs(shipping_cost.as_tuple().exponent)
 
             if exponent != 2:
-                raise forms.ValidationError(
-                    "O shipping_cost deve conter duas casas decimais."
-                )
+                raise forms.ValidationError("O shipping_cost deve conter duas casas decimais.")
 
         return shipping_cost
