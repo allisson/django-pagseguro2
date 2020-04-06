@@ -1,8 +1,7 @@
 Tutorial
 ============
 
-O django-pagseguro2 necessita do Django versão 1.3+,
-lembrando que o suporte ao python3 está presente apenas nas versões 1.5+.
+O django-pagseguro2 necessita do Django versão 2.2+ e python 3.6+.
 
 ============
 Instalação
@@ -18,14 +17,15 @@ Configuração
 
 Adicione o app pagseguro no INSTALLED_APPS::
 
-    INSTALLED_APPS = (
+    INSTALLED_APPS = [
+        'django.contrib.admin',
         'django.contrib.auth',
         'django.contrib.contenttypes',
         'django.contrib.sessions',
+        'django.contrib.messages',
         'django.contrib.staticfiles',
-        'django.contrib.admin',
         'pagseguro',
-    )
+    ]
 
 Adicione as configurações no settings.py::
 
@@ -40,11 +40,13 @@ configuração ``PAGSEGURO_SANDBOX`` como ``False`` uma vez que o valor padrão 
 
 Adicione a view que recebe as notificações no urls.py::
 
-    urlpatterns = patterns(
-        '',
-        url(r'^retorno/pagseguro/', include('pagseguro.urls')),
-        # a url de retorno será /retorno/pagseguro/
-    )
+    from django.contrib import admin
+    from django.urls import include, path
+
+    urlpatterns = [
+        path('admin/', admin.site.urls),
+        path('retorno/pagseguro/', include('pagseguro.urls')),
+    ]
 
 =================================
 Trabalhando com a API de checkout
@@ -352,4 +354,3 @@ Para revolser esse detalhe, basta entrar na página "Threat control" (CloudFlare
 * 200.147.112.137
 
 Após adicioná-los, clique em "Trust +".
-
