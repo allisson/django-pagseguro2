@@ -15,10 +15,12 @@ clean-build:
 	@rm -fr *.egg-info
 
 lint:
-	SKIP=no-commit-to-branch pre-commit run -a -v
+	flake8 --ignore=E501,W503 pagseguro/*.py testapp/*.py
+	isort --check-only **/*.py
+	black --check pagseguro/*.py testapp/*.py
 
 test:
-	coverage run --source=pagseguro testapp/manage.py test pagseguro
+	testapp/manage.py test pagseguro
 
 build: test
 	python setup.py sdist
