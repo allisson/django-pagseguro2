@@ -11,6 +11,9 @@ jobs:
       matrix:
         python-version: [3.5, 3.6, 3.7, 3.8]
         django: [2.2.12, 3.0.5]
+        exclude:
+          - django: 3.0.5
+            python-version: 3.5
 
     steps:
     - uses: actions/checkout@v2
