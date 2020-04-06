@@ -1,10 +1,12 @@
-import io
+import codecs
+import os
 
 from setuptools import find_packages, setup
 
 import pagseguro
 
 version = pagseguro.__version__
+here = os.path.abspath(os.path.dirname(__file__))
 
 requires = [
     'Django>=2.2',
@@ -12,6 +14,10 @@ requires = [
     'python-dateutil',
     'xmltodict'
 ]
+
+# Get the long description
+with codecs.open(os.path.join(here, 'README.rst'), encoding='utf-8') as f:
+    long_description = f.read()
 
 setup(
     name='django-pagseguro2',
@@ -21,7 +27,7 @@ setup(
     packages=find_packages(),
     license='MIT',
     description='Integração da API v2 do PagSeguro com o Django.',
-    long_description=io.open('docs/index.rst', 'rt', encoding='UTF-8').read(),
+    long_description=long_description,
     url='https://github.com/allisson/django-pagseguro2',
     include_package_data=True,
     zip_safe=False,
