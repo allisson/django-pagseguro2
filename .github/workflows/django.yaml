@@ -29,4 +29,4 @@ jobs:
         make lint
     - name: Run Tests
       run: |
-        coverage run --source=pagseguro testapp/manage.py test pagseguro
+        make test
