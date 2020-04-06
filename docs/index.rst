@@ -7,21 +7,6 @@ Documentação do django-pagseguro2.
 =============================================
 Integração da API v2 do PagSeguro com o Django.
 
-.. image:: https://travis-ci.org/allisson/django-pagseguro2.svg?branch=master
-    :target: https://travis-ci.org/allisson/django-pagseguro2
-
-.. image:: https://coveralls.io/repos/allisson/django-pagseguro2/badge.png?branch=master
-    :target: https://coveralls.io/r/allisson/django-pagseguro2?branch=master
-
-.. image:: https://pypip.in/download/django-pagseguro2/badge.png?period=month
-        :target: https://pypi.python.org/pypi/django-pagseguro2
-
-.. image:: https://pypip.in/version/django-pagseguro2/badge.png
-        :target: https://pypi.python.org/pypi/django-pagseguro2
-
-.. image:: https://pypip.in/license/django-pagseguro2/badge.png
-        :target: https://pypi.python.org/pypi/django-pagseguro2
-
 Para API v1 do PagSeguro, use o `django-pagseguro <http://github.com/fabiocerqueira/django-pagseguro>`_.
 
 =================
@@ -42,8 +27,8 @@ Autor
 ==========================
 Principais características
 ==========================
-- Python: 2.6, 2.7, 3.2, 3.3 e 3.4.
-- Django: 1.4 (apenas python2), 1.5, 1.6, 1.7, 1.8.
+- Python: 3.6, 3.7, 3.8.
+- Django: 2.2.x, 3.0.x.
 - Processamento de requisições http/https usando a biblioteca `requests <http://github.com/kennethreitz/requests/>`_.
 - Excelente cobertura de testes (> 80%).
 - Documentação com exemplos práticos.
@@ -53,8 +38,6 @@ Links
 =================
 
 - `Github <http://github.com/allisson/django-pagseguro2/>`_
-- `Travis CI <http://travis-ci.org/allisson/django-pagseguro2/>`_
-- `Coveralls <http://coveralls.io/r/allisson/django-pagseguro2/>`_
 
 =================
 Referências
