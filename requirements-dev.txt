@@ -1,5 +1,6 @@
 coverage>=3.7.1
 coveralls>=0.4.2
+flake8
 isort
 pre-commit
 responses>=0.8.1
