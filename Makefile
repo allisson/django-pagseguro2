@@ -14,8 +14,13 @@ clean-build:
 	@rm -fr dist/
 	@rm -fr *.egg-info
 
+lint:
+	flake8 --ignore=E501,W503 pagseguro/*.py testapp/*.py
+	isort --check-only **/*.py
+	black --check --quiet pagseguro/*.py testapp/*.py
+
 test:
-	coverage run --source=pagseguro testapp/manage.py test pagseguro
+	testapp/manage.py test pagseguro
 
 build: test
 	python setup.py sdist

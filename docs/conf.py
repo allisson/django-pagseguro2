@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 #
 # django-pagseguro2 documentation build configuration file, created by
 # sphinx-quickstart on Fri Jun  6 14:59:49 2014.

@@ -64,3 +64,9 @@ settings_local.py
 
 # pycharm .idea
 .idea/
+
+# vscode
+.vscode/
+
+# venv
+.venv/

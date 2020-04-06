@@ -1,15 +1,8 @@
-# -*- coding: utf-8 -*-
-from django.test import TestCase
-try:
-    from django.urls import reverse
-except ImportError:
-    from django.core.urlresolvers import reverse
-
 import responses
-import six
+from django.test import TestCase
+from django.urls import reverse
 
 from pagseguro.settings import NOTIFICATION_URL
-
 
 notification_response_xml = '''<?xml version="1.0" encoding="UTF-8"?>
 <transaction>
@@ -109,17 +102,11 @@ class ReceiveNotificationViewTest(TestCase):
 
         response = self.client.post(self.url, self.post_params)
         self.assertEqual(response.status_code, 400)
-        if six.PY3:
-            self.assertContains(
-                response,
-                six.u('Notificação inválida.'),
-                status_code=400
-            )
-        else:
-            self.assertEqual(
-                response.content,
-                six.b('Notificação inválida.')
-            )
+        self.assertContains(
+            response,
+            'Notificação inválida.',
+            status_code=400
+        )
 
     @responses.activate
     def test_render(self):
@@ -135,14 +122,8 @@ class ReceiveNotificationViewTest(TestCase):
 
         response = self.client.post(self.url, self.post_params)
         self.assertEqual(response.status_code, 200)
-        if six.PY3:
-            self.assertContains(
-                response,
-                six.u('Notificação recebida com sucesso.'),
-                status_code=200
-            )
-        else:
-            self.assertEqual(
-                response.content,
-                six.b('Notificação recebida com sucesso.')
-            )
+        self.assertContains(
+            response,
+            'Notificação recebida com sucesso.',
+            status_code=200
+        )
