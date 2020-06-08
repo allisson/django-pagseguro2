@@ -43,7 +43,7 @@ logger = logging.getLogger(__name__)
 
 class PagSeguroItem(object):
     def __init__(
-            self, id, description, amount, quantity, shipping_cost=None, weight=None, form_class=None,
+        self, id, description, amount, quantity, shipping_cost=None, weight=None, form_class=None,
     ):
         self.id = id
         self.description = description
