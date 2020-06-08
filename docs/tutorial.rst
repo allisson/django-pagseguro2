@@ -252,9 +252,77 @@ Efetue o checkout transparent::
     >>> data = api.checkout()
 
 
+==========================================
+Trabalhando com a API Modelo de Aplicações
+==========================================
+
+Primeiramente, todas as configurações devem ter sido realizadas como descrito na seção configurações.
+
+Algumas configurações adicionais são necessárias. Então acrescente as seguintes linhas no **settings.py**::
+
+    PAGSEGURO_APP_ID = 'a appId da sua aplicação'
+    PAGSEGURO_APP_KEY = 'a appKey da sua aplicação'
+    PAGSEGURO_AUTHORIZATIONS_RETURN = "http://a4f97dac1cc5.ngrok.io/pagseguro/"
+
+
+Você pode obter os valores para appId e appKey criando uma aplicação quando for usar em produção.
+
+Mas recomendo que você primeiramente teste os recursos usando o SANDBOX do PagSeguro.
+
+No SANDBOX não é necessário criar aplicações, como o sandbox é um ambiente de testes, a aplicação já está criada automaticamente com appKey e appId e com vendedores de testes, não precisando criar uma aplicação.
+
+Para começar, precisamos importar a classe de autorização::
+
+    from pagseguro.api import PagSeguroAuthorizationApp
+
+O ``PagSeguroAuthorizationApp`` é responsável por solicitar o acesso do seu app à contas de outros usuários do PagSeguro. Imagine que você é o dono de um marketplace. Quando um vendedor cria uma conta no seu sistema, você pode solicitar a ele algumas permissões a conta do PagSeguro dele.
+
+Por padrão, quatro permissões são solicitadas::
+
+    CREATE_CHECKOUTS
+    RECEIVE_TRANSACTION_NOTIFICATIONS
+    SEARCH_TRANSACTIONS
+    MANAGE_PAYMENT_PRE_APPROVALS
+    DIRECT_PAYMENT
+
+Você pode ver detalhes sobre cada uma delas consultando a documentação oficial da API do PAgSeguro: https://dev.pagseguro.uol.com.br/reference#aplicacoes-direcionando-para-autorizacao
+
+Além disso, você pode definir para qual URL o usuário será redirecinado após confirmar as permissões::
+
+    pagseguro_app = PagSeguroAuthorizationApp(
+        permissions=("CREATE_CHECKOUTS", "RECEIVE_TRANSACTION_NOTIFICATIONS"),
+        redirectURL="http://seusite.com.br/redirect",
+    )
+
+Solicite a autorização::
+
+    >>> data = pagseguro_app.get_authorizations()
+
+Redirecione o usuário para a página do PagSeguro onde ele irá aceitar ou recusar o acesso da sua aplicação::
+
+    if data.get("success"):
+        redirect_url = data.get("redirect_url")
+        # seu código de redirecionamento aqui
+
+
+Quando uma autorização é concedida, uma notificação é enviada pelo PagSeguro.
+
+O ``PagSeguroAuthorizationApp`` possui os seguintes Signals::
+
+    pedido_autorizacao_realizado
+    pedido_autorizacao_realizado_com_sucesso
+    pedido_autorizacao_realizado_com_erro
+    notificacao_autorizacao_recebida
+
+Os três primeiros Signals se referem à solicitação de autorização enviada pela sua aplicação.
+O último Signal é disparado quando, após o usuário dar permissão a sua aplicação, o PagSeguro enviar uma notificação.
+
+Leia a próxima seção (**Trabalhando com Signals de notificação**) desse tutorial para mais detalhes sobre Signals.
+
 ===================================
 Trabalhando com Signals de checkout
 ===================================
+
 
 Podemos usar o recurso de Signals do Django para capturar informações relacionadas aos checkouts.
 

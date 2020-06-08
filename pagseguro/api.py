@@ -1,4 +1,5 @@
 import logging
+import uuid
 
 import requests
 import xmltodict
@@ -14,6 +15,14 @@ from pagseguro.settings import (
     PAYMENT_URL,
     SESSION_URL,
     TRANSACTION_URL,
+
+    # API MODELO DE APLICAÇÕES
+    PAGSEGURO_APP_ID,
+    PAGSEGURO_APP_KEY,
+    REQUESTING_AUTHORIZATIONS_URL,
+    REDIRECT_AUTHORIZATIONS_URL,
+    PAGSEGURO_AUTHORIZATIONS_RETURN,
+    AUTHORIZATIONS_URL,
 )
 from pagseguro.signals import (
     NOTIFICATION_STATUS,
@@ -21,14 +30,19 @@ from pagseguro.signals import (
     checkout_realizado_com_erro,
     checkout_realizado_com_sucesso,
     notificacao_recebida,
-)
+
+    # API MODELO DE APLICAÇÕES
+    pedido_autorizacao_realizado,
+    pedido_autorizacao_realizado_com_erro,
+    pedido_autorizacao_realizado_com_sucesso,
+    notificacao_autorizacao_recebida)
 
 logger = logging.getLogger(__name__)
 
 
 class PagSeguroItem(object):
     def __init__(
-        self, id, description, amount, quantity, shipping_cost=None, weight=None, form_class=None,
+            self, id, description, amount, quantity, shipping_cost=None, weight=None, form_class=None,
     ):
         self.id = id
         self.description = description
@@ -62,17 +76,112 @@ class PagSeguroItem(object):
         return "<PagSeguroItem: {!r}>".format(self.get_data())
 
 
+class PagSeguroAuthorizationApp(object):
+    """API MODELO DE APLICAÇÕES"""
+
+    def __init__(
+            self,
+            app_id=None,
+            app_key=None,
+            requesting_authorizations_url=None,
+            redirect_authorizations_url=None,
+            authorizations_url=None,
+            **kwargs,
+    ):
+        self.app_id = app_id or PAGSEGURO_APP_ID
+        self.app_key = app_key or PAGSEGURO_APP_KEY
+        self.requesting_authorizations_url = requesting_authorizations_url or REQUESTING_AUTHORIZATIONS_URL
+        self.redirect_authorizations_url = redirect_authorizations_url or REDIRECT_AUTHORIZATIONS_URL
+        self.authorization_return = PAGSEGURO_AUTHORIZATIONS_RETURN
+        self.authorizations_url = authorizations_url or AUTHORIZATIONS_URL
+        self.base_params = {"permissions": ["CREATE_CHECKOUTS", "RECEIVE_TRANSACTION_NOTIFICATIONS",
+                                            "SEARCH_TRANSACTIONS", "MANAGE_PAYMENT_PRE_APPROVALS", "DIRECT_PAYMENT"],
+                            "redirectURL": "https://meusite.com",
+                            }
+        self.base_params.update(kwargs)
+        self.params = {}
+
+    def build_url(self):
+        self.requesting_authorizations_url = "{}?appId={}&appKey={}".format(
+            self.requesting_authorizations_url,
+            self.app_id,
+            self.app_key
+        )
+
+    def build_params(self):
+        self.params.update(self.base_params)
+
+    def get_authorizations(self):
+        self.build_url()
+        self.build_params()
+
+        headers = {"content-type": "application/x-www-form-urlencoded; charset=UTF-8"}
+        response = requests.post(self.requesting_authorizations_url, self.params, headers=headers)
+
+        data = {}
+
+        if response.status_code == 200:
+            root = xmltodict.parse(response.text)
+            data = {
+                "code": root["authorizationRequest"]["code"],
+                "status_code": response.status_code,
+                "date": parse(root["authorizationRequest"]["date"]),
+                "redirect_url": "{}?code={}".format(self.redirect_authorizations_url,
+                                                    root["authorizationRequest"]["code"]),
+                "success": True,
+                "reference": self.params.get("reference") or str(uuid.uuid4())
+            }
+            pedido_autorizacao_realizado_com_sucesso.send(sender=self, data=data)
+        else:
+            data = {
+                "status_code": response.status_code,
+                "message": response.text,
+                "success": False,
+                "date": timezone.now(),
+            }
+            pedido_autorizacao_realizado_com_erro.send(sender=self, data=data)
+
+        pedido_autorizacao_realizado.send(sender=self, data=data)
+
+        logger.debug("operation=api_authorizationapp_get_authorizations, data={!r}".format(data))
+
+        return data
+
+    def get_notification(self, notification_code):
+        response = requests.get(
+            self.authorizations_url + "/{}?appId={}&appKey={}".format(
+                notification_code,
+                PAGSEGURO_APP_ID,
+                PAGSEGURO_APP_KEY,
+            )
+        )
+
+        if response.status_code == 200:
+            root = xmltodict.parse(response.text)
+            authorization = root['authorization']
+
+            notificacao_autorizacao_recebida.send(sender=self, authorization=authorization)
+
+        logger.debug(
+            "operation=api_authorizationapp_get_notification, "
+            "notification_code={}, "
+            "response_body={}, "
+            "response_status={}".format(notification_code, response.text, response.status_code)
+        )
+        return response
+
+
 class PagSeguroApi(object):
     def __init__(
-        self,
-        checkout_url=None,
-        redirect_url=None,
-        notification_url=None,
-        transaction_url=None,
-        pagseguro_email=None,
-        pagseguro_token=None,
-        currency="BRL",
-        **kwargs,
+            self,
+            checkout_url=None,
+            redirect_url=None,
+            notification_url=None,
+            transaction_url=None,
+            pagseguro_email=None,
+            pagseguro_token=None,
+            currency="BRL",
+            **kwargs,
     ):
         self.checkout_url = checkout_url or CHECKOUT_URL
         self.redirect_url = redirect_url or PAYMENT_URL
@@ -235,17 +344,17 @@ class PagSeguroApiTransparent(PagSeguroApi):
         self.params["senderBornDate"] = born_date
 
     def set_shipping(
-        self,
-        street,
-        number,
-        complement,
-        district,
-        postal_code,
-        city,
-        state,
-        country,
-        cost=None,
-        shipping_type=None,
+            self,
+            street,
+            number,
+            complement,
+            district,
+            postal_code,
+            city,
+            state,
+            country,
+            cost=None,
+            shipping_type=None,
     ):
         self.params["shippingAddressStreet"] = street
         self.params["shippingAddressNumber"] = number
@@ -259,7 +368,7 @@ class PagSeguroApiTransparent(PagSeguroApi):
         self.params["shippingType"] = shipping_type
 
     def set_creditcard_data(
-        self, quantity, value, name, birth_date, cpf, area_code, phone, no_interest_quantity=None,
+            self, quantity, value, name, birth_date, cpf, area_code, phone, no_interest_quantity=None,
     ):
         self.params["installmentQuantity"] = quantity
         self.params["installmentValue"] = value
@@ -272,7 +381,7 @@ class PagSeguroApiTransparent(PagSeguroApi):
             self.params["noInterestInstallmentQuantity"] = no_interest_quantity
 
     def set_creditcard_billing_address(
-        self, street, number, district, postal_code, city, state, country, complement=None,
+            self, street, number, district, postal_code, city, state, country, complement=None,
     ):
         self.params["billingAddressStreet"] = street
         self.params["billingAddressNumber"] = number
