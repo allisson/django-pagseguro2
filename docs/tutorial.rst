@@ -262,7 +262,7 @@ Algumas configurações adicionais são necessárias. Então acrescente as segui
 
     PAGSEGURO_APP_ID = 'a appId da sua aplicação'
     PAGSEGURO_APP_KEY = 'a appKey da sua aplicação'
-    PAGSEGURO_AUTHORIZATIONS_RETURN = "http://a4f97dac1cc5.ngrok.io/pagseguro/"
+    PAGSEGURO_AUTHORIZATIONS_RETURN = "a url de notificação para autorizações"
 
 
 Você pode obter os valores para appId e appKey criando uma aplicação quando for usar em produção.
@@ -275,7 +275,7 @@ Para começar, precisamos importar a classe de autorização::
 
     from pagseguro.api import PagSeguroAuthorizationApp
 
-O ``PagSeguroAuthorizationApp`` é responsável por solicitar o acesso do seu app à contas de outros usuários do PagSeguro. Imagine que você é o dono de um marketplace. Quando um vendedor cria uma conta no seu sistema, você pode solicitar a ele algumas permissões a conta do PagSeguro dele.
+O ``PagSeguroAuthorizationApp`` é responsável por solicitar o acesso do seu app a contas de outros usuários do PagSeguro. Imagine que você é o dono de um marketplace. Quando um vendedor cria uma conta no seu sistema, você pode solicitar a ele algumas permissões a conta do PagSeguro dele.
 
 Por padrão, quatro permissões são solicitadas::
 
@@ -296,7 +296,7 @@ Além disso, você pode definir para qual URL o usuário será redirecinado apó
 
 Solicite a autorização::
 
-    >>> data = pagseguro_app.get_authorizations()
+    data = pagseguro_app.get_authorizations()
 
 Redirecione o usuário para a página do PagSeguro onde ele irá aceitar ou recusar o acesso da sua aplicação::
 
@@ -317,7 +317,7 @@ O ``PagSeguroAuthorizationApp`` possui os seguintes Signals::
 Os três primeiros Signals se referem à solicitação de autorização enviada pela sua aplicação.
 O último Signal é disparado quando, após o usuário dar permissão a sua aplicação, o PagSeguro enviar uma notificação.
 
-Leia a próxima seção (**Trabalhando com Signals de notificação**) desse tutorial para mais detalhes sobre Signals.
+Leia as duas próxima seções desse tutorial para mais detalhes sobre Signals.
 
 ===================================
 Trabalhando com Signals de checkout
