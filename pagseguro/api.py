@@ -35,7 +35,8 @@ from pagseguro.signals import (
     pedido_autorizacao_realizado,
     pedido_autorizacao_realizado_com_erro,
     pedido_autorizacao_realizado_com_sucesso,
-    notificacao_autorizacao_recebida)
+    notificacao_autorizacao_recebida,
+)
 
 logger = logging.getLogger(__name__)
 
@@ -173,15 +174,15 @@ class PagSeguroAuthorizationApp(object):
 
 class PagSeguroApi(object):
     def __init__(
-            self,
-            checkout_url=None,
-            redirect_url=None,
-            notification_url=None,
-            transaction_url=None,
-            pagseguro_email=None,
-            pagseguro_token=None,
-            currency="BRL",
-            **kwargs,
+        self,
+        checkout_url=None,
+        redirect_url=None,
+        notification_url=None,
+        transaction_url=None,
+        pagseguro_email=None,
+        pagseguro_token=None,
+        currency="BRL",
+        **kwargs,
     ):
         self.checkout_url = checkout_url or CHECKOUT_URL
         self.redirect_url = redirect_url or PAYMENT_URL
@@ -344,17 +345,17 @@ class PagSeguroApiTransparent(PagSeguroApi):
         self.params["senderBornDate"] = born_date
 
     def set_shipping(
-            self,
-            street,
-            number,
-            complement,
-            district,
-            postal_code,
-            city,
-            state,
-            country,
-            cost=None,
-            shipping_type=None,
+        self,
+        street,
+        number,
+        complement,
+        district,
+        postal_code,
+        city,
+        state,
+        country,
+        cost=None,
+        shipping_type=None,
     ):
         self.params["shippingAddressStreet"] = street
         self.params["shippingAddressNumber"] = number
@@ -368,7 +369,7 @@ class PagSeguroApiTransparent(PagSeguroApi):
         self.params["shippingType"] = shipping_type
 
     def set_creditcard_data(
-            self, quantity, value, name, birth_date, cpf, area_code, phone, no_interest_quantity=None,
+        self, quantity, value, name, birth_date, cpf, area_code, phone, no_interest_quantity=None,
     ):
         self.params["installmentQuantity"] = quantity
         self.params["installmentValue"] = value
@@ -381,7 +382,7 @@ class PagSeguroApiTransparent(PagSeguroApi):
             self.params["noInterestInstallmentQuantity"] = no_interest_quantity
 
     def set_creditcard_billing_address(
-            self, street, number, district, postal_code, city, state, country, complement=None,
+        self, street, number, district, postal_code, city, state, country, complement=None,
     ):
         self.params["billingAddressStreet"] = street
         self.params["billingAddressNumber"] = number
