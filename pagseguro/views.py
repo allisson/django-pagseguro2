@@ -27,3 +27,12 @@ def receive_notification(request):
             return HttpResponse("Notificação recebida com sucesso.")
 
     return HttpResponse("Notificação inválida.", status=400)
+
+
+# apenas para testar
+def pagar(request):
+    print(request.GET.keys())
+    if request.GET.get("hash"):
+        hash_code = request.GET.get("hash")
+        print(hash_code)
+    return render(request, "pagseguro/index.html")
