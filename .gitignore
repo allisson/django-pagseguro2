@@ -70,3 +70,15 @@ settings_local.py
 
 # venv
 .venv/
+
+# minhas contribuições
+.gitignore
+dados_sandbox
+manage.py
+pagseguro/migrations
+pagseguro/templates
+test.py
+testapp2
+
+.scannerwork/
+

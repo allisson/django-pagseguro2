@@ -1,7 +1,10 @@
 from django.db import models
 
 from pagseguro.settings import PAGSEGURO_LOG_IN_MODEL
-from pagseguro.signals import checkout_realizado, notificacao_recebida, save_checkout, update_transaction
+from pagseguro.signals import (
+    checkout_realizado, notificacao_recebida, save_checkout, update_transaction,
+    # API MODELO DE APLICAÇÕES
+    pedido_autorizacao_realizado, notificacao_autorizacao_recebida, save_request_authorization, save_authorization)
 
 TRANSACTION_STATUS_CHOICES = (
     ("aguardando", "Aguardando"),
@@ -12,6 +15,57 @@ TRANSACTION_STATUS_CHOICES = (
     ("devolvido", "Devolvido"),
     ("cancelado", "Cancelado"),
 )
+
+
+class Authorization(models.Model):
+    code = models.CharField(
+        "código da requisição", max_length=100, blank=True, help_text="Código gerado para redirecionamento.",
+    )
+    date = models.DateTimeField("Data", help_text="Data da solicitação.")
+
+    reference = models.CharField(
+        "referencia", unique=True, max_length=100, blank=True, help_text="Código único para controle",
+    )
+
+    authorizer_email = models.EmailField("Email do autorizador", help_text="Email de quem autorizou")
+
+    public_key = models.CharField(max_length=100)
+
+    def __str__(self):
+        return "{0}".format(self.pk)
+
+    class Meta:
+        ordering = ["-date"]
+        verbose_name = "Autorização"
+        verbose_name_plural = "Autorizações"
+
+
+class RequestAuthorization(models.Model):
+    """
+    Solicita autorização para gerenciar a conta de um vendedor
+    """
+    code = models.CharField(
+        "código", max_length=100, blank=True, help_text="Código gerado para redirecionamento.",
+    )
+    date = models.DateTimeField("Data", help_text="Data em que a autorização foi solicitada.")
+    success = models.BooleanField(
+        "Sucesso", db_index=True, help_text="A solicitação de autorização foi feita com sucesso?", default=False,
+    )
+    message = models.TextField(
+        "Mensagem de erro", blank=True, help_text="Mensagem apresentada no caso de erro na solicitação.",
+    )
+
+    reference = models.CharField(
+        "referencia", unique=True, max_length=100, blank=True, help_text="Código único para controle",
+    )
+
+    def __str__(self):
+        return "{0}".format(self.pk)
+
+    class Meta:
+        ordering = ["-date"]
+        verbose_name = "Solicitação de Autorização"
+        verbose_name_plural = "Solicitações de Autorização"
 
 
 class Checkout(models.Model):
@@ -88,3 +142,7 @@ class TransactionHistory(models.Model):
 if PAGSEGURO_LOG_IN_MODEL:
     checkout_realizado.connect(save_checkout)
     notificacao_recebida.connect(update_transaction)
+
+    # API MODELO DE APLICAÇÕES
+    pedido_autorizacao_realizado.connect(save_request_authorization)
+    notificacao_autorizacao_recebida.connect(save_authorization)

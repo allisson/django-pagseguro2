@@ -9,6 +9,15 @@ checkout_realizado = Signal(providing_args=["data"])
 checkout_realizado_com_sucesso = Signal(providing_args=["data"])
 checkout_realizado_com_erro = Signal(providing_args=["data"])
 
+# API MODELO DE APLICAÇÕES
+pedido_autorizacao_realizado = Signal(providing_args=["data"])
+pedido_autorizacao_realizado_com_sucesso = Signal(providing_args=["data"])
+pedido_autorizacao_realizado_com_erro = Signal(providing_args=["data"])
+
+# API MODELO DE APLICAÇÕES
+notificacao_autorizacao_recebida = Signal(providing_args=["authorization"])
+
+
 notificacao_recebida = Signal(providing_args=["transaction"])
 notificacao_status_aguardando = Signal(providing_args=["transaction"])
 notificacao_status_em_analise = Signal(providing_args=["transaction"])
@@ -32,6 +41,40 @@ NOTIFICATION_STATUS = {
     "8": notificacao_status_debitado,
     "9": notificacao_status_retencao_temporaria,
 }
+
+
+def save_authorization(sender, authorization, **kwargs):
+    """API MODELO DE APLICAÇÕES"""
+    from pagseguro.models import Authorization
+
+    try:
+        authorization_app = Authorization.objects.get(code=authorization.get("code"))
+    except Authorization.DoesNotExist:
+        authorization_app = Authorization(
+            code=authorization.get("code"),
+            date=authorization.get("creationDate"),
+            reference=authorization.get("reference"),
+            authorizer_email=authorization.get("authorizerEmail"),
+            public_key=authorization.get("account").get("publicKey"),
+        )
+
+    authorization_app.save()
+
+
+def save_request_authorization(sender, data, **kwargs):
+    """API MODELO DE APLICAÇÕES"""
+    from pagseguro.models import RequestAuthorization
+
+    authorization = RequestAuthorization(
+        date=data.get("date"), success=data.get("success"), reference=data.get("reference")
+    )
+
+    if authorization.success:
+        authorization.code = data.get("code")
+    else:
+        authorization.message = data.get("message")
+
+    authorization.save()
 
 
 def save_checkout(sender, data, **kwargs):

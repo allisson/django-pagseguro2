@@ -1,6 +1,37 @@
 from django.contrib import admin
 
-from pagseguro.models import Checkout, Transaction, TransactionHistory
+from pagseguro.models import Checkout, Transaction, TransactionHistory, RequestAuthorization, Authorization
+
+
+class AuthorizationAdmin(admin.ModelAdmin):
+
+    list_display = (
+        "id",
+        "reference",
+        "code",
+        "date",
+    )
+    list_display_links = ("id",)
+    search_fields = [
+        "code",
+    ]
+    list_filter = ("date",)
+
+
+class RequestAuthorizationAdmin(admin.ModelAdmin):
+
+    list_display = (
+        "id",
+        "reference",
+        "code",
+        "date",
+        "success",
+    )
+    list_display_links = ("id",)
+    search_fields = [
+        "code",
+    ]
+    list_filter = ("date", "success")
 
 
 class CheckoutAdmin(admin.ModelAdmin):
@@ -43,3 +74,5 @@ class TransactionAdmin(admin.ModelAdmin):
 
 admin.site.register(Checkout, CheckoutAdmin)
 admin.site.register(Transaction, TransactionAdmin)
+admin.site.register(RequestAuthorization, RequestAuthorizationAdmin)
+admin.site.register(Authorization, AuthorizationAdmin)
