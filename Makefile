@@ -15,9 +15,7 @@ clean-build:
 	@rm -fr *.egg-info
 
 lint:
-	flake8 --ignore=E501,W503 pagseguro/*.py testapp/*.py
-	isort --check-only **/*.py
-	black --check --quiet pagseguro/*.py testapp/*.py
+	pre-commit run --all-files
 
 test:
 	testapp/manage.py test pagseguro

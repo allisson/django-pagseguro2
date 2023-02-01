@@ -5,20 +5,20 @@ from django.dispatch import Signal
 
 from pagseguro.settings import TRANSACTION_STATUS
 
-checkout_realizado = Signal(providing_args=["data"])
-checkout_realizado_com_sucesso = Signal(providing_args=["data"])
-checkout_realizado_com_erro = Signal(providing_args=["data"])
+checkout_realizado = Signal()  # providing_args=["data"]
+checkout_realizado_com_sucesso = Signal()  # providing_args=["data"]
+checkout_realizado_com_erro = Signal()  # providing_args=["data"]
 
-notificacao_recebida = Signal(providing_args=["transaction"])
-notificacao_status_aguardando = Signal(providing_args=["transaction"])
-notificacao_status_em_analise = Signal(providing_args=["transaction"])
-notificacao_status_pago = Signal(providing_args=["transaction"])
-notificacao_status_disponivel = Signal(providing_args=["transaction"])
-notificacao_status_em_disputa = Signal(providing_args=["transaction"])
-notificacao_status_devolvido = Signal(providing_args=["transaction"])
-notificacao_status_cancelado = Signal(providing_args=["transaction"])
-notificacao_status_debitado = Signal(providing_args=["transaction"])
-notificacao_status_retencao_temporaria = Signal(providing_args=["transaction"])
+notificacao_recebida = Signal()  # providing_args=["transaction"]
+notificacao_status_aguardando = Signal()  # providing_args=["transaction"]
+notificacao_status_em_analise = Signal()  # providing_args=["transaction"]
+notificacao_status_pago = Signal()  # providing_args=["transaction"]
+notificacao_status_disponivel = Signal()  # providing_args=["transaction"]
+notificacao_status_em_disputa = Signal()  # providing_args=["transaction"]
+notificacao_status_devolvido = Signal()  # providing_args=["transaction"]
+notificacao_status_cancelado = Signal()  # providing_args=["transaction"]
+notificacao_status_debitado = Signal()  # providing_args=["transaction"]
+notificacao_status_retencao_temporaria = Signal()  # providing_args=["transaction"]
 
 
 NOTIFICATION_STATUS = {

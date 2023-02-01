@@ -6,7 +6,7 @@ from pagseguro.api import PagSeguroApi, PagSeguroItem
 from pagseguro.models import Transaction, TransactionHistory
 from pagseguro.settings import CHECKOUT_URL, NOTIFICATION_URL
 
-notification_response_xml = '''<?xml version="1.0" encoding="UTF-8"?>
+notification_response_xml = """<?xml version="1.0" encoding="UTF-8"?>
 <transaction>
   <date>2014-06-05T22:52:49.000-03:00</date>
   <code>04B68A13-C2CF-4821-8611-F2002636270D</code>
@@ -62,23 +62,22 @@ notification_response_xml = '''<?xml version="1.0" encoding="UTF-8"?>
     <type>3</type>
     <cost>0.00</cost>
   </shipping>
-</transaction>'''
+</transaction>"""
 
-checkout_response_xml = '''<?xml version="1.0" encoding="UTF-8"?>
+checkout_response_xml = """<?xml version="1.0" encoding="UTF-8"?>
 <checkout>
   <code>67DB59D3BDBD84EAA4396F929DB350A7</code>
   <date>2014-06-07T00:52:04.000-03:00</date>
-</checkout>'''
+</checkout>"""
 
 
 class PagSeguroSignalsTest(TestCase):
-
     def setUp(self):
-        self.url = reverse('pagseguro_receive_notification')
-        self.notificationCode = 'A5182C-C9EF48EF48D2-1FF4AF6FAC82-EB2948'
+        self.url = reverse("pagseguro_receive_notification")
+        self.notificationCode = "A5182C-C9EF48EF48D2-1FF4AF6FAC82-EB2948"
         self.post_params = {
-            'notificationCode': 'A5182C-C9EF48EF48D2-1FF4AF6FAC82-EB2948',
-            'notificationType': 'transaction'
+            "notificationCode": "A5182C-C9EF48EF48D2-1FF4AF6FAC82-EB2948",
+            "notificationType": "transaction",
         }
 
     @responses.activate
@@ -87,15 +86,9 @@ class PagSeguroSignalsTest(TestCase):
 
         # load signal function
         def load_signal(sender, data, **kwargs):
-            self.assertEqual(
-                data['success'], True
-            )
-            self.assertEqual(
-                data['code'], '67DB59D3BDBD84EAA4396F929DB350A7'
-            )
-            self.assertEqual(
-                data['status_code'], 200
-            )
+            self.assertEqual(data["success"], True)
+            self.assertEqual(data["code"], "67DB59D3BDBD84EAA4396F929DB350A7")
+            self.assertEqual(data["status_code"], 200)
 
         # mock requests
         responses.add(
@@ -110,14 +103,7 @@ class PagSeguroSignalsTest(TestCase):
 
         # create new checkout
         pagseguro_api = PagSeguroApi()
-        pagseguro_api.add_item(
-            PagSeguroItem(
-                id='1',
-                description='My item',
-                amount='10.00',
-                quantity=1
-            )
-        )
+        pagseguro_api.add_item(PagSeguroItem(id="1", description="My item", amount="10.00", quantity=1))
 
         # load notification
         pagseguro_api.checkout()
@@ -128,15 +114,9 @@ class PagSeguroSignalsTest(TestCase):
 
         # load signal function
         def load_signal(sender, data, **kwargs):
-            self.assertEqual(
-                data['success'], True
-            )
-            self.assertEqual(
-                data['code'], '67DB59D3BDBD84EAA4396F929DB350A7'
-            )
-            self.assertEqual(
-                data['status_code'], 200
-            )
+            self.assertEqual(data["success"], True)
+            self.assertEqual(data["code"], "67DB59D3BDBD84EAA4396F929DB350A7")
+            self.assertEqual(data["status_code"], 200)
 
         # mock requests
         responses.add(
@@ -151,14 +131,7 @@ class PagSeguroSignalsTest(TestCase):
 
         # create new checkout
         pagseguro_api = PagSeguroApi()
-        pagseguro_api.add_item(
-            PagSeguroItem(
-                id='1',
-                description='My item',
-                amount='10.00',
-                quantity=1
-            )
-        )
+        pagseguro_api.add_item(PagSeguroItem(id="1", description="My item", amount="10.00", quantity=1))
 
         # load notification
         pagseguro_api.checkout()
@@ -169,21 +142,15 @@ class PagSeguroSignalsTest(TestCase):
 
         # load signal function
         def load_signal(sender, data, **kwargs):
-            self.assertEqual(
-                data['success'], False
-            )
-            self.assertEqual(
-                data['status_code'], 401
-            )
-            self.assertEqual(
-                data['message'], 'Unauthorized'
-            )
+            self.assertEqual(data["success"], False)
+            self.assertEqual(data["status_code"], 401)
+            self.assertEqual(data["message"], "Unauthorized")
 
         # mock requests
         responses.add(
             responses.POST,
             CHECKOUT_URL,
-            body='Unauthorized',
+            body="Unauthorized",
             status=401,
         )
 
@@ -192,14 +159,7 @@ class PagSeguroSignalsTest(TestCase):
 
         # create new checkout
         pagseguro_api = PagSeguroApi()
-        pagseguro_api.add_item(
-            PagSeguroItem(
-                id='1',
-                description='My item',
-                amount='10.00',
-                quantity=1
-            )
-        )
+        pagseguro_api.add_item(PagSeguroItem(id="1", description="My item", amount="10.00", quantity=1))
 
         # load notification
         pagseguro_api.checkout()
@@ -210,14 +170,12 @@ class PagSeguroSignalsTest(TestCase):
 
         # load signal function
         def load_signal(sender, transaction, **kwargs):
-            self.assertEqual(
-                transaction['status'], '1'
-            )
+            self.assertEqual(transaction["status"], "1")
 
         # mock requests
         responses.add(
             responses.GET,
-            NOTIFICATION_URL + '/{0}'.format(self.notificationCode),
+            NOTIFICATION_URL + "/{0}".format(self.notificationCode),
             body=notification_response_xml,
             status=200,
         )
@@ -235,14 +193,12 @@ class PagSeguroSignalsTest(TestCase):
 
         # load signal function
         def load_signal(sender, transaction, **kwargs):
-            self.assertEqual(
-                transaction['status'], '1'
-            )
+            self.assertEqual(transaction["status"], "1")
 
         # mock requests
         responses.add(
             responses.GET,
-            NOTIFICATION_URL + '/{0}'.format(self.notificationCode),
+            NOTIFICATION_URL + "/{0}".format(self.notificationCode),
             body=notification_response_xml,
             status=200,
         )
@@ -260,17 +216,13 @@ class PagSeguroSignalsTest(TestCase):
 
         # load signal function
         def load_signal(sender, transaction, **kwargs):
-            self.assertEqual(
-                transaction['status'], '2'
-            )
+            self.assertEqual(transaction["status"], "2")
 
         # mock requests
         responses.add(
             responses.GET,
-            NOTIFICATION_URL + '/{0}'.format(self.notificationCode),
-            body=notification_response_xml.replace(
-                '<status>1</status>', '<status>2</status>'
-            ),
+            NOTIFICATION_URL + "/{0}".format(self.notificationCode),
+            body=notification_response_xml.replace("<status>1</status>", "<status>2</status>"),
             status=200,
         )
 
@@ -287,17 +239,13 @@ class PagSeguroSignalsTest(TestCase):
 
         # load signal function
         def load_signal(sender, transaction, **kwargs):
-            self.assertEqual(
-                transaction['status'], '3'
-            )
+            self.assertEqual(transaction["status"], "3")
 
         # mock requests
         responses.add(
             responses.GET,
-            NOTIFICATION_URL + '/{0}'.format(self.notificationCode),
-            body=notification_response_xml.replace(
-                '<status>1</status>', '<status>3</status>'
-            ),
+            NOTIFICATION_URL + "/{0}".format(self.notificationCode),
+            body=notification_response_xml.replace("<status>1</status>", "<status>3</status>"),
             status=200,
         )
 
@@ -314,17 +262,13 @@ class PagSeguroSignalsTest(TestCase):
 
         # load signal function
         def load_signal(sender, transaction, **kwargs):
-            self.assertEqual(
-                transaction['status'], '4'
-            )
+            self.assertEqual(transaction["status"], "4")
 
         # mock requests
         responses.add(
             responses.GET,
-            NOTIFICATION_URL + '/{0}'.format(self.notificationCode),
-            body=notification_response_xml.replace(
-                '<status>1</status>', '<status>4</status>'
-            ),
+            NOTIFICATION_URL + "/{0}".format(self.notificationCode),
+            body=notification_response_xml.replace("<status>1</status>", "<status>4</status>"),
             status=200,
         )
 
@@ -341,17 +285,13 @@ class PagSeguroSignalsTest(TestCase):
 
         # load signal function
         def load_signal(sender, transaction, **kwargs):
-            self.assertEqual(
-                transaction['status'], '5'
-            )
+            self.assertEqual(transaction["status"], "5")
 
         # mock requests
         responses.add(
             responses.GET,
-            NOTIFICATION_URL + '/{0}'.format(self.notificationCode),
-            body=notification_response_xml.replace(
-                '<status>1</status>', '<status>5</status>'
-            ),
+            NOTIFICATION_URL + "/{0}".format(self.notificationCode),
+            body=notification_response_xml.replace("<status>1</status>", "<status>5</status>"),
             status=200,
         )
 
@@ -368,17 +308,13 @@ class PagSeguroSignalsTest(TestCase):
 
         # load signal function
         def load_signal(sender, transaction, **kwargs):
-            self.assertEqual(
-                transaction['status'], '6'
-            )
+            self.assertEqual(transaction["status"], "6")
 
         # mock requests
         responses.add(
             responses.GET,
-            NOTIFICATION_URL + '/{0}'.format(self.notificationCode),
-            body=notification_response_xml.replace(
-                '<status>1</status>', '<status>6</status>'
-            ),
+            NOTIFICATION_URL + "/{0}".format(self.notificationCode),
+            body=notification_response_xml.replace("<status>1</status>", "<status>6</status>"),
             status=200,
         )
 
@@ -395,17 +331,13 @@ class PagSeguroSignalsTest(TestCase):
 
         # load signal function
         def load_signal(sender, transaction, **kwargs):
-            self.assertEqual(
-                transaction['status'], '7'
-            )
+            self.assertEqual(transaction["status"], "7")
 
         # mock requests
         responses.add(
             responses.GET,
-            NOTIFICATION_URL + '/{0}'.format(self.notificationCode),
-            body=notification_response_xml.replace(
-                '<status>1</status>', '<status>7</status>'
-            ),
+            NOTIFICATION_URL + "/{0}".format(self.notificationCode),
+            body=notification_response_xml.replace("<status>1</status>", "<status>7</status>"),
             status=200,
         )
 
@@ -422,17 +354,13 @@ class PagSeguroSignalsTest(TestCase):
 
         # load signal function
         def load_signal(sender, transaction, **kwargs):
-            self.assertEqual(
-                transaction['status'], '8'
-            )
+            self.assertEqual(transaction["status"], "8")
 
         # mock requests
         responses.add(
             responses.GET,
-            NOTIFICATION_URL + '/{0}'.format(self.notificationCode),
-            body=notification_response_xml.replace(
-                '<status>1</status>', '<status>8</status>'
-            ),
+            NOTIFICATION_URL + "/{0}".format(self.notificationCode),
+            body=notification_response_xml.replace("<status>1</status>", "<status>8</status>"),
             status=200,
         )
 
@@ -449,17 +377,13 @@ class PagSeguroSignalsTest(TestCase):
 
         # load signal function
         def load_signal(sender, transaction, **kwargs):
-            self.assertEqual(
-                transaction['status'], '9'
-            )
+            self.assertEqual(transaction["status"], "9")
 
         # mock requests
         responses.add(
             responses.GET,
-            NOTIFICATION_URL + '/{0}'.format(self.notificationCode),
-            body=notification_response_xml.replace(
-                '<status>1</status>', '<status>9</status>'
-            ),
+            NOTIFICATION_URL + "/{0}".format(self.notificationCode),
+            body=notification_response_xml.replace("<status>1</status>", "<status>9</status>"),
             status=200,
         )
 
@@ -475,50 +399,33 @@ class PagSeguroSignalsTest(TestCase):
         # mock requests
         responses.add(
             responses.GET,
-            NOTIFICATION_URL + '/{0}'.format(self.notificationCode),
+            NOTIFICATION_URL + "/{0}".format(self.notificationCode),
             body=notification_response_xml,
             status=200,
         )
 
         # check transaction
-        self.assertFalse(
-            Transaction.objects.filter(
-                code='04B68A13-C2CF-4821-8611-F2002636270D'
-            )
-        )
+        self.assertFalse(Transaction.objects.filter(code="04B68A13-C2CF-4821-8611-F2002636270D"))
 
         # load notification
         response = self.client.post(self.url, self.post_params)
         self.assertEqual(response.status_code, 200)
 
         # check transaction
-        self.assertTrue(
-            Transaction.objects.filter(
-                code='04B68A13-C2CF-4821-8611-F2002636270D'
-            )
-        )
-        transaction = Transaction.objects.get(
-            code='04B68A13-C2CF-4821-8611-F2002636270D'
-        )
+        self.assertTrue(Transaction.objects.filter(code="04B68A13-C2CF-4821-8611-F2002636270D"))
+        transaction = Transaction.objects.get(code="04B68A13-C2CF-4821-8611-F2002636270D")
 
         # check transaction history
-        self.assertTrue(
-            TransactionHistory.objects.filter(
-                transaction=transaction,
-                status='aguardando'
-            )
-        )
+        self.assertTrue(TransactionHistory.objects.filter(transaction=transaction, status="aguardando"))
         transaction = Transaction.objects.get(pk=transaction.pk)
-        self.assertEqual(transaction.status, 'aguardando')
+        self.assertEqual(transaction.status, "aguardando")
 
         # mock requests
         responses.reset()
         responses.add(
             responses.GET,
-            NOTIFICATION_URL + '/{0}'.format(self.notificationCode),
-            body=notification_response_xml.replace(
-                '<status>1</status>', '<status>2</status>'
-            ),
+            NOTIFICATION_URL + "/{0}".format(self.notificationCode),
+            body=notification_response_xml.replace("<status>1</status>", "<status>2</status>"),
             status=200,
         )
         # load notification
@@ -526,29 +433,17 @@ class PagSeguroSignalsTest(TestCase):
         self.assertEqual(response.status_code, 200)
 
         # check transaction history
-        self.assertTrue(
-            TransactionHistory.objects.filter(
-                transaction=transaction,
-                status='aguardando'
-            )
-        )
-        self.assertTrue(
-            TransactionHistory.objects.filter(
-                transaction=transaction,
-                status='em_analise'
-            )
-        )
+        self.assertTrue(TransactionHistory.objects.filter(transaction=transaction, status="aguardando"))
+        self.assertTrue(TransactionHistory.objects.filter(transaction=transaction, status="em_analise"))
         transaction = Transaction.objects.get(pk=transaction.pk)
-        self.assertEqual(transaction.status, 'em_analise')
+        self.assertEqual(transaction.status, "em_analise")
 
         # mock requests
         responses.reset()
         responses.add(
             responses.GET,
-            NOTIFICATION_URL + '/{0}'.format(self.notificationCode),
-            body=notification_response_xml.replace(
-                '<status>1</status>', '<status>3</status>'
-            ),
+            NOTIFICATION_URL + "/{0}".format(self.notificationCode),
+            body=notification_response_xml.replace("<status>1</status>", "<status>3</status>"),
             status=200,
         )
         # load notification
@@ -556,35 +451,18 @@ class PagSeguroSignalsTest(TestCase):
         self.assertEqual(response.status_code, 200)
 
         # check transaction history
-        self.assertTrue(
-            TransactionHistory.objects.filter(
-                transaction=transaction,
-                status='aguardando'
-            )
-        )
-        self.assertTrue(
-            TransactionHistory.objects.filter(
-                transaction=transaction,
-                status='em_analise'
-            )
-        )
-        self.assertTrue(
-            TransactionHistory.objects.filter(
-                transaction=transaction,
-                status='pago'
-            )
-        )
+        self.assertTrue(TransactionHistory.objects.filter(transaction=transaction, status="aguardando"))
+        self.assertTrue(TransactionHistory.objects.filter(transaction=transaction, status="em_analise"))
+        self.assertTrue(TransactionHistory.objects.filter(transaction=transaction, status="pago"))
         transaction = Transaction.objects.get(pk=transaction.pk)
-        self.assertEqual(transaction.status, 'pago')
+        self.assertEqual(transaction.status, "pago")
 
         # mock requests
         responses.reset()
         responses.add(
             responses.GET,
-            NOTIFICATION_URL + '/{0}'.format(self.notificationCode),
-            body=notification_response_xml.replace(
-                '<status>1</status>', '<status>4</status>'
-            ),
+            NOTIFICATION_URL + "/{0}".format(self.notificationCode),
+            body=notification_response_xml.replace("<status>1</status>", "<status>4</status>"),
             status=200,
         )
         # load notification
@@ -592,41 +470,19 @@ class PagSeguroSignalsTest(TestCase):
         self.assertEqual(response.status_code, 200)
 
         # check transaction history
-        self.assertTrue(
-            TransactionHistory.objects.filter(
-                transaction=transaction,
-                status='aguardando'
-            )
-        )
-        self.assertTrue(
-            TransactionHistory.objects.filter(
-                transaction=transaction,
-                status='em_analise'
-            )
-        )
-        self.assertTrue(
-            TransactionHistory.objects.filter(
-                transaction=transaction,
-                status='pago'
-            )
-        )
-        self.assertTrue(
-            TransactionHistory.objects.filter(
-                transaction=transaction,
-                status='disponivel'
-            )
-        )
+        self.assertTrue(TransactionHistory.objects.filter(transaction=transaction, status="aguardando"))
+        self.assertTrue(TransactionHistory.objects.filter(transaction=transaction, status="em_analise"))
+        self.assertTrue(TransactionHistory.objects.filter(transaction=transaction, status="pago"))
+        self.assertTrue(TransactionHistory.objects.filter(transaction=transaction, status="disponivel"))
         transaction = Transaction.objects.get(pk=transaction.pk)
-        self.assertEqual(transaction.status, 'disponivel')
+        self.assertEqual(transaction.status, "disponivel")
 
         # mock requests
         responses.reset()
         responses.add(
             responses.GET,
-            NOTIFICATION_URL + '/{0}'.format(self.notificationCode),
-            body=notification_response_xml.replace(
-                '<status>1</status>', '<status>5</status>'
-            ),
+            NOTIFICATION_URL + "/{0}".format(self.notificationCode),
+            body=notification_response_xml.replace("<status>1</status>", "<status>5</status>"),
             status=200,
         )
         # load notification
@@ -634,47 +490,20 @@ class PagSeguroSignalsTest(TestCase):
         self.assertEqual(response.status_code, 200)
 
         # check transaction history
-        self.assertTrue(
-            TransactionHistory.objects.filter(
-                transaction=transaction,
-                status='aguardando'
-            )
-        )
-        self.assertTrue(
-            TransactionHistory.objects.filter(
-                transaction=transaction,
-                status='em_analise'
-            )
-        )
-        self.assertTrue(
-            TransactionHistory.objects.filter(
-                transaction=transaction,
-                status='pago'
-            )
-        )
-        self.assertTrue(
-            TransactionHistory.objects.filter(
-                transaction=transaction,
-                status='disponivel'
-            )
-        )
-        self.assertTrue(
-            TransactionHistory.objects.filter(
-                transaction=transaction,
-                status='em_disputa'
-            )
-        )
+        self.assertTrue(TransactionHistory.objects.filter(transaction=transaction, status="aguardando"))
+        self.assertTrue(TransactionHistory.objects.filter(transaction=transaction, status="em_analise"))
+        self.assertTrue(TransactionHistory.objects.filter(transaction=transaction, status="pago"))
+        self.assertTrue(TransactionHistory.objects.filter(transaction=transaction, status="disponivel"))
+        self.assertTrue(TransactionHistory.objects.filter(transaction=transaction, status="em_disputa"))
         transaction = Transaction.objects.get(pk=transaction.pk)
-        self.assertEqual(transaction.status, 'em_disputa')
+        self.assertEqual(transaction.status, "em_disputa")
 
         # mock requests
         responses.reset()
         responses.add(
             responses.GET,
-            NOTIFICATION_URL + '/{0}'.format(self.notificationCode),
-            body=notification_response_xml.replace(
-                '<status>1</status>', '<status>6</status>'
-            ),
+            NOTIFICATION_URL + "/{0}".format(self.notificationCode),
+            body=notification_response_xml.replace("<status>1</status>", "<status>6</status>"),
             status=200,
         )
         # load notification
@@ -682,53 +511,21 @@ class PagSeguroSignalsTest(TestCase):
         self.assertEqual(response.status_code, 200)
 
         # check transaction history
-        self.assertTrue(
-            TransactionHistory.objects.filter(
-                transaction=transaction,
-                status='aguardando'
-            )
-        )
-        self.assertTrue(
-            TransactionHistory.objects.filter(
-                transaction=transaction,
-                status='em_analise'
-            )
-        )
-        self.assertTrue(
-            TransactionHistory.objects.filter(
-                transaction=transaction,
-                status='pago'
-            )
-        )
-        self.assertTrue(
-            TransactionHistory.objects.filter(
-                transaction=transaction,
-                status='disponivel'
-            )
-        )
-        self.assertTrue(
-            TransactionHistory.objects.filter(
-                transaction=transaction,
-                status='em_disputa'
-            )
-        )
-        self.assertTrue(
-            TransactionHistory.objects.filter(
-                transaction=transaction,
-                status='devolvido'
-            )
-        )
+        self.assertTrue(TransactionHistory.objects.filter(transaction=transaction, status="aguardando"))
+        self.assertTrue(TransactionHistory.objects.filter(transaction=transaction, status="em_analise"))
+        self.assertTrue(TransactionHistory.objects.filter(transaction=transaction, status="pago"))
+        self.assertTrue(TransactionHistory.objects.filter(transaction=transaction, status="disponivel"))
+        self.assertTrue(TransactionHistory.objects.filter(transaction=transaction, status="em_disputa"))
+        self.assertTrue(TransactionHistory.objects.filter(transaction=transaction, status="devolvido"))
         transaction = Transaction.objects.get(pk=transaction.pk)
-        self.assertEqual(transaction.status, 'devolvido')
+        self.assertEqual(transaction.status, "devolvido")
 
         # mock requests
         responses.reset()
         responses.add(
             responses.GET,
-            NOTIFICATION_URL + '/{0}'.format(self.notificationCode),
-            body=notification_response_xml.replace(
-                '<status>1</status>', '<status>7</status>'
-            ),
+            NOTIFICATION_URL + "/{0}".format(self.notificationCode),
+            body=notification_response_xml.replace("<status>1</status>", "<status>7</status>"),
             status=200,
         )
         # load notification
@@ -736,47 +533,12 @@ class PagSeguroSignalsTest(TestCase):
         self.assertEqual(response.status_code, 200)
 
         # check transaction history
-        self.assertTrue(
-            TransactionHistory.objects.filter(
-                transaction=transaction,
-                status='aguardando'
-            )
-        )
-        self.assertTrue(
-            TransactionHistory.objects.filter(
-                transaction=transaction,
-                status='em_analise'
-            )
-        )
-        self.assertTrue(
-            TransactionHistory.objects.filter(
-                transaction=transaction,
-                status='pago'
-            )
-        )
-        self.assertTrue(
-            TransactionHistory.objects.filter(
-                transaction=transaction,
-                status='disponivel'
-            )
-        )
-        self.assertTrue(
-            TransactionHistory.objects.filter(
-                transaction=transaction,
-                status='em_disputa'
-            )
-        )
-        self.assertTrue(
-            TransactionHistory.objects.filter(
-                transaction=transaction,
-                status='devolvido'
-            )
-        )
-        self.assertTrue(
-            TransactionHistory.objects.filter(
-                transaction=transaction,
-                status='cancelado'
-            )
-        )
+        self.assertTrue(TransactionHistory.objects.filter(transaction=transaction, status="aguardando"))
+        self.assertTrue(TransactionHistory.objects.filter(transaction=transaction, status="em_analise"))
+        self.assertTrue(TransactionHistory.objects.filter(transaction=transaction, status="pago"))
+        self.assertTrue(TransactionHistory.objects.filter(transaction=transaction, status="disponivel"))
+        self.assertTrue(TransactionHistory.objects.filter(transaction=transaction, status="em_disputa"))
+        self.assertTrue(TransactionHistory.objects.filter(transaction=transaction, status="devolvido"))
+        self.assertTrue(TransactionHistory.objects.filter(transaction=transaction, status="cancelado"))
         transaction = Transaction.objects.get(pk=transaction.pk)
-        self.assertEqual(transaction.status, 'cancelado')
+        self.assertEqual(transaction.status, "cancelado")

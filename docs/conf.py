@@ -1,27 +1,27 @@
 import pagseguro
 
 extensions = [
-    'sphinx.ext.autodoc',
+    "sphinx.ext.autodoc",
 ]
 
-templates_path = ['_templates']
+templates_path = ["_templates"]
 
-source_suffix = '.rst'
+source_suffix = ".rst"
 
-master_doc = 'index'
+master_doc = "index"
 
-project = 'django-pagseguro2'
-copyright = '2020, Allisson Azevedo'
+project = "django-pagseguro2"
+copyright = "2020, Allisson Azevedo"
 
-version = pagseguro.__version__.rsplit('.', 1)[0]
+version = pagseguro.__version__.rsplit(".", 1)[0]
 release = pagseguro.__version__
 
-exclude_patterns = ['_build']
+exclude_patterns = ["_build"]
 
-pygments_style = 'sphinx'
+pygments_style = "sphinx"
 
-html_theme = 'default'
+html_theme = "default"
 
-html_static_path = ['_static']
+html_static_path = ["_static"]
 
-htmlhelp_basename = 'django-pagseguro2doc'
+htmlhelp_basename = "django-pagseguro2doc"
