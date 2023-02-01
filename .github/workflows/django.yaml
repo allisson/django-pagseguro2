@@ -8,21 +8,21 @@ jobs:
     strategy:
       max-parallel: 4
       matrix:
-        python-version: [3.6, 3.7, 3.8, 3.9, 3.10, 3.11]
+        python-version: [3.6.15, 3.7.15, 3.8.16, 3.9.16, 3.10.9, 3.11.1]
         django: [2.2.28, 3.0.14, 3.1.14, 3.2.17, 4.0.9, 4.1.6]
         exclude:
           - django: 2.2.28
-            python-version: [3.10, 3.11]
+            python-version: [3.10.9, 3.11.1]
           - django: 3.0.14
-            python-version: [3.10, 3.11]
+            python-version: [3.10.9, 3.11.1]
           - django: 3.1.14
-            python-version: [3.10, 3.11]
+            python-version: [3.10.9, 3.11.1]
           - django: 3.2.17
-            python-version: 3.11
+            python-version: 3.11.1
           - django: 4.0.9
-            python-version: [3.6, 3.7]
+            python-version: [3.6.15, 3.7.15]
           - django: 4.1.6
-            python-version: [3.6, 3.7]
+            python-version: [3.6.15, 3.7.15]
 
     steps:
       - uses: actions/checkout@v3
