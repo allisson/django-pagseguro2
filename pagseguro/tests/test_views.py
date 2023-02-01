@@ -4,7 +4,7 @@ from django.urls import reverse
 
 from pagseguro.settings import NOTIFICATION_URL
 
-notification_response_xml = '''<?xml version="1.0" encoding="UTF-8"?>
+notification_response_xml = """<?xml version="1.0" encoding="UTF-8"?>
 <transaction>
   <date>2014-06-05T22:52:49.000-03:00</date>
   <code>04B68A13-C2CF-4821-8611-F2002636270D</code>
@@ -60,32 +60,25 @@ notification_response_xml = '''<?xml version="1.0" encoding="UTF-8"?>
     <type>3</type>
     <cost>0.00</cost>
   </shipping>
-</transaction>'''
+</transaction>"""
 
 
 class ReceiveNotificationViewTest(TestCase):
-
     def setUp(self):
-        self.url = reverse('pagseguro_receive_notification')
+        self.url = reverse("pagseguro_receive_notification")
         self.post_params = {
-            'notificationCode': 'A5182C-C9EF48EF48D2-1FF4AF6FAC82-EB2948',
-            'notificationType': 'transaction'
+            "notificationCode": "A5182C-C9EF48EF48D2-1FF4AF6FAC82-EB2948",
+            "notificationType": "transaction",
         }
 
     def test_render_without_post_arguments(self):
         response = self.client.post(self.url)
         self.assertEqual(response.status_code, 400)
 
-        response = self.client.post(
-            self.url,
-            {'notificationCode': '1'}
-        )
+        response = self.client.post(self.url, {"notificationCode": "1"})
         self.assertEqual(response.status_code, 400)
 
-        response = self.client.post(
-            self.url,
-            {'notificationType': 'transaction'}
-        )
+        response = self.client.post(self.url, {"notificationType": "transaction"})
         self.assertEqual(response.status_code, 400)
 
     @responses.activate
@@ -93,37 +86,25 @@ class ReceiveNotificationViewTest(TestCase):
         # mock requests
         responses.add(
             responses.GET,
-            NOTIFICATION_URL + '/{0}'.format(
-                'A5182C-C9EF48EF48D2-1FF4AF6FAC82-EB2948'
-            ),
-            body='Unauthorized',
+            NOTIFICATION_URL + "/{0}".format("A5182C-C9EF48EF48D2-1FF4AF6FAC82-EB2948"),
+            body="Unauthorized",
             status=401,
         )
 
         response = self.client.post(self.url, self.post_params)
         self.assertEqual(response.status_code, 400)
-        self.assertContains(
-            response,
-            'Notificação inválida.',
-            status_code=400
-        )
+        self.assertContains(response, "Notificação inválida.", status_code=400)
 
     @responses.activate
     def test_render(self):
         # mock requests
         responses.add(
             responses.GET,
-            NOTIFICATION_URL + '/{0}'.format(
-                'A5182C-C9EF48EF48D2-1FF4AF6FAC82-EB2948'
-            ),
+            NOTIFICATION_URL + "/{0}".format("A5182C-C9EF48EF48D2-1FF4AF6FAC82-EB2948"),
             body=notification_response_xml,
             status=200,
         )
 
         response = self.client.post(self.url, self.post_params)
         self.assertEqual(response.status_code, 200)
-        self.assertContains(
-            response,
-            'Notificação recebida com sucesso.',
-            status_code=200
-        )
+        self.assertContains(response, "Notificação recebida com sucesso.", status_code=200)

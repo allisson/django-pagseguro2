@@ -16,14 +16,22 @@ TRANSACTION_STATUS_CHOICES = (
 
 class Checkout(models.Model):
     code = models.CharField(
-        "código", max_length=100, blank=True, help_text="Código gerado para redirecionamento.",
+        "código",
+        max_length=100,
+        blank=True,
+        help_text="Código gerado para redirecionamento.",
     )
     date = models.DateTimeField("Data", help_text="Data em que o checkout foi realizado.")
     success = models.BooleanField(
-        "Sucesso", db_index=True, help_text="O checkout foi feito com sucesso?", default=False,
+        "Sucesso",
+        db_index=True,
+        help_text="O checkout foi feito com sucesso?",
+        default=False,
     )
     message = models.TextField(
-        "Mensagem de erro", blank=True, help_text="Mensagem apresentada no caso de erro no checkout.",
+        "Mensagem de erro",
+        blank=True,
+        help_text="Mensagem apresentada no caso de erro no checkout.",
     )
 
     def __str__(self):
@@ -37,7 +45,11 @@ class Checkout(models.Model):
 
 class Transaction(models.Model):
     code = models.CharField(
-        "código", max_length=100, unique=True, db_index=True, help_text="O código da transação.",
+        "código",
+        max_length=100,
+        unique=True,
+        db_index=True,
+        help_text="O código da transação.",
     )
     reference = models.CharField(
         "referência",
@@ -71,7 +83,10 @@ class Transaction(models.Model):
 class TransactionHistory(models.Model):
     transaction = models.ForeignKey(Transaction, on_delete=models.CASCADE, verbose_name="Transação")
     status = models.CharField(
-        "Status", max_length=20, choices=TRANSACTION_STATUS_CHOICES, help_text="Status da transação.",
+        "Status",
+        max_length=20,
+        choices=TRANSACTION_STATUS_CHOICES,
+        help_text="Status da transação.",
     )
     date = models.DateTimeField("Data")
 

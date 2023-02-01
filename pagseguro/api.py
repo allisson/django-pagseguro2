@@ -16,11 +16,11 @@ from pagseguro.settings import (
     TRANSACTION_URL,
 )
 from pagseguro.signals import (
-    NOTIFICATION_STATUS,
     checkout_realizado,
     checkout_realizado_com_erro,
     checkout_realizado_com_sucesso,
     notificacao_recebida,
+    NOTIFICATION_STATUS,
 )
 
 logger = logging.getLogger(__name__)
@@ -28,7 +28,14 @@ logger = logging.getLogger(__name__)
 
 class PagSeguroItem(object):
     def __init__(
-        self, id, description, amount, quantity, shipping_cost=None, weight=None, form_class=None,
+        self,
+        id,
+        description,
+        amount,
+        quantity,
+        shipping_cost=None,
+        weight=None,
+        form_class=None,
     ):
         self.id = id
         self.description = description
@@ -259,7 +266,15 @@ class PagSeguroApiTransparent(PagSeguroApi):
         self.params["shippingType"] = shipping_type
 
     def set_creditcard_data(
-        self, quantity, value, name, birth_date, cpf, area_code, phone, no_interest_quantity=None,
+        self,
+        quantity,
+        value,
+        name,
+        birth_date,
+        cpf,
+        area_code,
+        phone,
+        no_interest_quantity=None,
     ):
         self.params["installmentQuantity"] = quantity
         self.params["installmentValue"] = value
@@ -272,7 +287,15 @@ class PagSeguroApiTransparent(PagSeguroApi):
             self.params["noInterestInstallmentQuantity"] = no_interest_quantity
 
     def set_creditcard_billing_address(
-        self, street, number, district, postal_code, city, state, country, complement=None,
+        self,
+        street,
+        number,
+        district,
+        postal_code,
+        city,
+        state,
+        country,
+        complement=None,
     ):
         self.params["billingAddressStreet"] = street
         self.params["billingAddressNumber"] = number
@@ -318,7 +341,8 @@ class PagSeguroApiTransparent(PagSeguroApi):
 
     def get_session_id(self):
         response = requests.post(
-            self.session_url, params={"email": self.base_params["email"], "token": self.base_params["token"]},
+            self.session_url,
+            params={"email": self.base_params["email"], "token": self.base_params["token"]},
         )
 
         if response.status_code == 200:
