@@ -8,7 +8,7 @@ import pagseguro
 version = pagseguro.__version__
 here = os.path.abspath(os.path.dirname(__file__))
 
-requires = ["Django>=2.2", "requests", "python-dateutil", "xmltodict"]
+requires = ["Django>=3.2", "requests", "python-dateutil", "xmltodict"]
 
 # Get the long description
 with codecs.open(os.path.join(here, "README.rst"), encoding="utf-8") as f:
@@ -33,10 +33,9 @@ setup(
         "Intended Audience :: System Administrators",
         "Operating System :: OS Independent",
         "Topic :: Software Development",
-        "Programming Language :: Python :: 3.6",
-        "Programming Language :: Python :: 3.7",
         "Programming Language :: Python :: 3.8",
         "Programming Language :: Python :: 3.9",
         "Programming Language :: Python :: 3.10",
+        "Programming Language :: Python :: 3.11",
     ],
 )
